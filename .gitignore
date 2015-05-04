@@ -1,0 +1,5 @@
+*.suo
+*.pdb
+/Source/bin
+/Source/obj
+/proto/protof.txt
