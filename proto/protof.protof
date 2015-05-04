@@ -1,0 +1,68 @@
+package protof
+// import etc
+
+// 字段类型
+enum FieldType
+{	
+	None = 0
+	Bool = 1
+	Int32 = 2
+	UInt32 = 3
+	Int64 = 4
+	UInt64 = 5
+	String = 6
+	Float = 7
+	Double = 8
+	Message = 9
+	Enum = 10
+	Bytes = 11
+}
+
+// 字段
+message FieldDefine
+{
+	// Id int64 [Default: 1 AutoNumber:2 ] //`meta:"something" `
+	
+	Name 			string
+	Type 			FieldType
+	TypeName 		string 		// 消息类型
+	DefaultValue 	string
+	Number			int32		// 手动指定
+	
+	AutoNumber 		int32		// 自动生成
+	TrailingComment string		// 尾注释
+}
+
+// 枚举
+message EnumDefine
+{
+	Name 	string
+	Value 	array<EnumValueDefine>
+}
+
+// 枚举值
+message EnumValueDefine
+{
+	Name 	string
+	Number 	int32
+}
+
+// 扩展规则: 生成后的代码/proto, 只见最后一级, 在字段中有注释来自于哪个message
+// 消息定义
+message MessageDefine
+{
+	Name 	string
+	Extends	string				// 派生父级
+	Field 	array<FieldDefine>	// 顶级消息
+	Enum 	array<EnumDefine>	// 顶级枚举
+}
+
+// 文件
+message FileDefine
+{
+	Name 		string
+	Package 	string
+	Dependency 	array<string>
+	Message 	array<MessageDefine>
+	Enum 		array<EnumDefine>
+}
