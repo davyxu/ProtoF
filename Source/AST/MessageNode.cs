@@ -11,8 +11,11 @@ namespace ProtoF.AST
         public FieldType Type;
         public FieldContainer Container;
         public string TypeName;
+        public Node TypeRef;
+
         public string DefaultValue;
         public int Number;
+        
 
         // protof特有的
         public int AutoNumber;

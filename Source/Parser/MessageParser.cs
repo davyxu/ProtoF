@@ -151,6 +151,7 @@ namespace ProtoF.Parser
             _unsolvedNode.Add(n);
         }
 
+        // 就这节点类型
         bool ResolveFieldType( FileNode fn, FieldNode fieldNode )
         {
             var symbols = _symbols.Get(fn.Package, fieldNode.TypeName);
@@ -163,6 +164,7 @@ namespace ProtoF.Parser
             if (en != null)
             {
                 fieldNode.Type = FieldType.Enum;
+                fieldNode.TypeRef = en;
                 return true;                
             }
 
@@ -170,12 +172,14 @@ namespace ProtoF.Parser
             if (msg != null)
             {
                 fieldNode.Type = FieldType.Message;
+                fieldNode.TypeRef = en;
                 return true;                      
             }
 
             return false;
         }
 
+        // 解决前向引用的未知节点
         void ResolveUnknownNode( FileNode fn )
         {
             foreach (FieldNode fieldNode in _unsolvedNode)
