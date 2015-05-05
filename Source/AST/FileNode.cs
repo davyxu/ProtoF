@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace ProtoF.AST
 {
     public class FileNode : Node
     {
-        public string Name;
         public string Package;
         public List<string> Dependency = new List<string>();
         public List<MessageNode> Message = new List<MessageNode>();
@@ -14,13 +14,24 @@ namespace ProtoF.AST
 
         public void AddMessage(MessageNode n)
         {
-            ChildNode.Add(n);
+            Child.Add(n);
             Message.Add(n);
+        }
+
+
+        public MessageNode GetMessageByName( string name )
+        {
+            return Message.Find(x=> x.Name == name );
+        }
+
+        public EnumNode GetEnumByName(string name)
+        {
+            return Enum.Find(x => x.Name == name);
         }
 
         public void AddEnum(EnumNode n)
         {
-            ChildNode.Add(n);
+            Child.Add(n);
             Enum.Add(n);
         }
 
@@ -29,13 +40,14 @@ namespace ProtoF.AST
             return string.Format("{0} msg:{1} enum:{2}", Name, Message.Count, Enum.Count);
         }
 
-        public override void Print(StringBuilder sb, PrintFormat format, params object[] values)
+        public override void Print(StringBuilder sb, PrintOption opt, params object[] values)
         {
-            sb.AppendFormat("package {0}\n\n", Package);
+            sb.AppendFormat("package {0}\n", Package);
 
-            foreach (var n in ChildNode)
+
+            foreach (var n in Child)
             {
-                n.Print( sb, format );                
+                n.Print(sb, opt);                
             }
 
         }

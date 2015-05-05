@@ -7,15 +7,16 @@ namespace ProtoF.Parser
     public partial class SchemaParser
     {
         Lexer _lexer = new Lexer();
+        SymbolTable _symbols = new SymbolTable();
 
         public SchemaParser()
         {
             _lexer.AddMatcher(new TokenMatcher[]{
                 new NumeralMatcher(),
                 
-                new LineEndMatcher().Ignore(),
+                new LineEndMatcher(),
                 new WhitespaceMatcher().Ignore(),
-                new CommentMatcher().Ignore(),
+                new CommentMatcher(),
                 
                 new KeywordMatcher(TokenType.Assign, "="),          
                 new KeywordMatcher(TokenType.LBracket, "("),
@@ -59,11 +60,19 @@ namespace ProtoF.Parser
 
         public FileNode Parse(string source, string srcName)
         {
+            _unsolvedNode.Clear();
+            _symbols.Clear();
             _lexer.Start(source, srcName);
 
             Next();
 
             return ParseFile();
+        }
+
+        // 给节点标记在文本中的位置
+        void MarkLocation( Node n )
+        {
+            n.Loc = _lexer.Loc;
         }
 
         public override string ToString()
@@ -77,31 +86,11 @@ namespace ProtoF.Parser
         }
 
 
-        static TokenMatcher[] _commentMatcher = new TokenMatcher[]{
-            new CommentMatcher(),
-            new WhitespaceMatcher().Ignore(),
-            new LineEndMatcher(),
-            new UnknownMatcher(),
-        };
-        
-        string ReadComment( )
-        {
-            var token = _lexer.ReadByMatcher(_commentMatcher);
-            if ( token.Type != TokenType.Comment )
-            {
-                Next();
-                return null;
-            }
-            Next();
-
-            return token.Value;
-        }
-
-        void Check(TokenType t, string error )
+        void Check(TokenType t, string fmt, params object[] objs)
         {
             if (CurrToken.Type != t)
             {
-                throw new Exception(error);
+                Error(fmt, objs);
             }            
         }
 
@@ -109,15 +98,38 @@ namespace ProtoF.Parser
         {
             if (CurrToken.Type != t)
             {
-                throw new Exception(string.Format("expect token: {0}", t.ToString()));
+                Error("expect token: {0}", t.ToString());
             }
 
             Next();
         }
 
-        void Error(string str)
+        void Consume(TokenType t )
         {
-            throw new Exception(str);
+            if (CurrToken.Type == t)
+            {
+                Next();
+            }
+        }
+
+        void Error(string fmt, params object[] objs)
+        {            
+            Error(null, fmt, objs);
+        }
+
+        void Error( Location loc, string fmt, params object[] objs )
+        {
+            string str;
+            if ( loc != null )
+            {
+                str = loc + " " + string.Format(fmt, objs);
+            }
+            else
+            {
+                str = string.Format(fmt, objs);
+            }
+
+            Console.WriteLine(str);            
         }
     }
 

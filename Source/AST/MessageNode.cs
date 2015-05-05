@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace ProtoF.AST
 {
-    public class FieldNode : Node
+    public class FieldNode : TrailingCommentNode
     {
-        public string Name;
         public FieldType Type;
         public FieldContainer Container;
         public string TypeName;
         public string DefaultValue;
         public int Number;
-        public string TrailingComment;
 
         // protof特有的
         public int AutoNumber;
@@ -38,15 +36,14 @@ namespace ProtoF.AST
             }
         }
 
-        public override void Print(StringBuilder sb, PrintFormat format, params object[] values )
+        public override void Print(StringBuilder sb, PrintOption opt, params object[] values )
         {
             var maxNameLength = (int)values[0];
             var maxTypeLength = (int)values[1];
 
             {
-                var space = " ".PadLeft(maxNameLength - Name.Length + 1);
-
-                sb.AppendFormat("   {0}{1}", Name, space);
+                var space = " ".PadLeft(maxNameLength - Name.Length + 1);                
+                sb.AppendFormat("{0}{1}{2}", opt.MakeIndentSpace(), Name, space);
             }
 
 
@@ -66,31 +63,32 @@ namespace ProtoF.AST
     }
 
 
-    public class MessageNode : Node
+    public class MessageNode : ContainerNode
     {
-        public string Name;
         public string Extends;
         public List<FieldNode> Field = new List<FieldNode>();
-        public List<EnumNode> Enum = new List<EnumNode>();
+        public List<EnumNode> Enum = new List<EnumNode>();        
 
         public void AddEnum(EnumNode n)
         {
-            ChildNode.Add(n);
+            AddSymbol(n.Name);
+            Child.Add(n);
             Enum.Add(n);
         }
 
         public void AddField(FieldNode n)
         {
-            ChildNode.Add(n);
+            AddSymbol(n.Name);
+            Child.Add(n);
             Field.Add(n);
-        }
+        }        
 
         public override string ToString()
         {
             return string.Format("{0} fields:{1}", Name, Field.Count);
         }
 
-        public override void Print(StringBuilder sb, PrintFormat format, params object[] values )
+        public override void Print(StringBuilder sb, PrintOption opt, params object[] values )
         {
             sb.AppendFormat("message {0}\n", Name);
             sb.Append("{\n");
@@ -98,12 +96,14 @@ namespace ProtoF.AST
             var maxNameLength = Field.Select(x => x.Name.Length).Max();
             var maxTypeLength = Field.Select(x => x.CompleteTypeName.Length).Max();
 
-            foreach (var n in ChildNode)
+            var subopt = new PrintOption(opt);
+
+            foreach (var n in Child)
             {
-                n.Print(sb, format, maxNameLength, maxTypeLength );
+                n.Print(sb, subopt, maxNameLength, maxTypeLength );
             }
 
-            sb.Append("}\n\n");
+            sb.Append("}\n");
         }
     }
 }

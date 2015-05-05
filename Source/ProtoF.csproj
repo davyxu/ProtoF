@@ -45,9 +45,13 @@
     <Compile Include="AST\FileNode.cs" />
     <Compile Include="AST\MessageNode.cs" />
     <Compile Include="AST\Node.cs" />
+    <Compile Include="Parser\CommentParser.cs" />
+    <Compile Include="Parser\MessageParser.cs" />
+    <Compile Include="Parser\EnumParser.cs" />
     <Compile Include="Parser\FileParser.cs" />
     <Compile Include="Parser\SchemaParser.cs" />
     <Compile Include="Compiler\Program.cs" />
+    <Compile Include="AST\SymbolTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scanner\CommentMatcher.cs" />
     <Compile Include="Scanner\IdentifierMatcher.cs" />

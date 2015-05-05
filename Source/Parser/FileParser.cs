@@ -10,6 +10,8 @@ namespace ProtoF.Parser
         {
             var node = new FileNode();
 
+            ParseCommentAndEOL(node);
+
             Expect( TokenType.Package );
 
             Check(TokenType.Identifier, "require package name");
@@ -17,19 +19,39 @@ namespace ProtoF.Parser
             node.Package = CurrToken.Value;
             Next();
 
+            Expect(TokenType.EOL);
+
+            
+
             while (CurrToken.Type != TokenType.EOF )
             {
+                ParseCommentAndEOL(node);
+
                 switch (CurrToken.Type)
                 {
                     case TokenType.Message:
                         {
-                            node.AddMessage(ParseMessage());                            
+                            var msg = ParseMessage(node);
+
+                            CheckDuplicate(msg.Loc, node.Package, msg.Name);
+
+                            node.AddMessage(msg);
+
+                            AddSymbol(node.Package, msg.Name, msg);
                         }
                         break;
                     case TokenType.Enum:
                         {
-                            node.AddEnum(ParseEnum());                            
+                            var en = ParseEnum();
+
+                            CheckDuplicate(en.Loc, node.Package, en.Name);
+
+                            node.AddEnum(en);
+
+                            AddSymbol(node.Package, en.Name, en);
                         }
+                        break;
+                    case TokenType.EOF:
                         break;
                     default:
                         {
@@ -39,164 +61,34 @@ namespace ProtoF.Parser
                 }
             }
 
-            return node;
-        }
-
-        EnumNode ParseEnum( )
-        {
-            var node = new EnumNode();
-
-            Expect(TokenType.Enum);
-
-            Check(TokenType.Identifier, "require enum type name");
- 
-            node.Name = CurrToken.Value;
-            Next();
-
-            Expect(TokenType.LBrace);
-
-
-            while (CurrToken.Type != TokenType.RBrace)
-            {
-                Check(TokenType.Identifier, "require enum name");
-
-                var valueNode = new EnumValueNode();
-                valueNode.Name = CurrToken.Value;
-
-                Next();
-
-                Expect(TokenType.Assign);
-
-                Check(TokenType.Number, "require enum value");
-                valueNode.Number = CurrToken.ToInteger();
-                
-                var comment = ReadComment();
-                if ( comment != null )
-                {
-                    valueNode.TrailingComment = comment;
-                }
-
-                node.AddValue(valueNode);                
-            }
-
-            Expect(TokenType.RBrace);
+            ResolveUnknownNode(node);
 
             return node;
         }
 
-        List<FieldNode> _unsolvedNode = new List<FieldNode>();
-
-        MessageNode ParseMessage()
+        void AddSymbol( string packageName, string name, Node n  )
         {
-            var node = new MessageNode();
-
-            Expect(TokenType.Message);
-
-            Check(TokenType.Identifier, "require message type name");
-
-            node.Name = CurrToken.Value;
-
-            Next();
-
-            Expect(TokenType.LBrace);
-
-
-            while (CurrToken.Type != TokenType.RBrace)
-            {
-                // 内嵌枚举
-                if ( CurrToken.Type == TokenType.Enum )
-                {
-                    node.AddEnum(ParseEnum());                    
-                }
-
-                // 字段名
-                Check(TokenType.Identifier, "require field name");
-
-                var fieldNode = new FieldNode();
-                fieldNode.Name = CurrToken.Value;
-
-                Next();
-
-                if ( CurrToken.Type == TokenType.Array )
-                {
-                    fieldNode.Container = FieldContainer.Array;
-                    Next();
-                    Expect(TokenType.LAngleBracket);
-                }
-                else
-                {
-                    fieldNode.Container = FieldContainer.None;
-                }
-                
-
-                // 字段类型
-                fieldNode.Type = GetFieldType();
-                fieldNode.TypeName = CurrToken.Value;
-                
-                node.AddField(fieldNode);
-
-                if ( fieldNode.Type == FieldType.None )
-                {
-                    _unsolvedNode.Add(fieldNode);
-                }
-
-                if ( fieldNode.Container == FieldContainer.Array )
-                {
-                    Next();
-                    Check(TokenType.RAngleBracket, string.Format("expect token: {0}", TokenType.RAngleBracket.ToString()));
-                }
-
-                var comment = ReadComment();
-                if (comment != null)
-                {
-                    fieldNode.TrailingComment = comment;
-                }                
-
-            }
-
-            Expect(TokenType.RBrace);
-
-            return node;
+            _symbols.Add(packageName, name, n);
         }
 
-        FieldType GetFieldType( )
-        {
-            FieldType ret = FieldType.None;
 
-            switch( CurrToken.Type )
+        void CheckDuplicate(Location loc, string packageName, string name)
+        {            
+            if (_symbols.Get(packageName, name) != null )
             {
-                case TokenType.Bool:
-                    ret = FieldType.Bool;
-                    break;
-                case TokenType.Int32:
-                    ret = FieldType.Int32;
-                    break;
-                case TokenType.UInt32:
-                    ret = FieldType.UInt32;
-                    break;
-                case TokenType.UInt64:
-                    ret = FieldType.UInt64;
-                    break;
-                case TokenType.Int64:
-                    ret = FieldType.Int64;
-                    break;
-                case TokenType.String:
-                    ret = FieldType.String;
-                    break;
-                case TokenType.Float:
-                    ret = FieldType.Float;
-                    break;
-                case TokenType.Double:
-                    ret = FieldType.Double;
-                    break;
-                case TokenType.Bytes:
-                    ret = FieldType.Bytes;
-                    break;
+                Error(loc, "{0} already defined in {1} package", name, packageName);
             }
+        }
 
-
-            return ret;
+        void CheckDuplicate(ContainerNode n, Location loc, string name)
+        {
+            if (n.Contain( name ) )
+            {
+                Error(loc, "{0} already defined", name);
+            }
         }
     }
+
+
 }
 

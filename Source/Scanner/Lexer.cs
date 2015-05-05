@@ -2,10 +2,15 @@
 
 namespace ProtoF.Scanner
 {
-    public struct Location
+    public class Location
     {
         public int Line;
         public string FileName;
+
+        public override string ToString()
+        {
+            return string.Format("{0}:{1}", FileName, Line );
+        }
     }
 
     public class Lexer
@@ -45,7 +50,7 @@ namespace ProtoF.Scanner
         {
             get
             {
-                Location loc;
+                Location loc = new Location();
                 loc.Line = _tokenizer.Line;
                 loc.FileName = _srcName;
                 return loc;
