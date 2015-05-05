@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ProtoF.Parser;
+﻿using System.Text;
 using System.IO;
-using ProtoF.Formater;
+using ProtoF.AST;
 
 namespace ProtoF
 {
@@ -19,10 +14,12 @@ namespace ProtoF
 
             var data = File.ReadAllText(inputFile, Encoding.UTF8);
 
-            var file = parser.Parse(data);
+            var file = parser.Parse(data, Path.GetFileName(inputFile) );
 
-            var str = ProtoFFormater.PrintFile(file);
-            File.WriteAllText(Path.ChangeExtension(inputFile, ".txt"), str, Encoding.UTF8);
+            var sb = new StringBuilder();
+            file.Print(sb, PrintFormat.ProtoF);
+           
+            File.WriteAllText(Path.ChangeExtension(inputFile, ".txt"), sb.ToString(), Encoding.UTF8);
         }
     }
 }

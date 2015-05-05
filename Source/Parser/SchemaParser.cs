@@ -1,6 +1,6 @@
 ﻿using ProtoF.Scanner;
 using System;
-using ProtoF.Proto;
+using ProtoF.AST;
 
 namespace ProtoF.Parser
 {
@@ -57,9 +57,9 @@ namespace ProtoF.Parser
             get { return _lexer.CurrToken;  }
         }
 
-        public FileDefine Parse(string source)
+        public FileNode Parse(string source, string srcName)
         {
-            _lexer.Start(source);
+            _lexer.Start(source, srcName);
 
             Next();
 

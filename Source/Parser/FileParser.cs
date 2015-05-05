@@ -1,24 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ProtoF.Proto;
+﻿using System.Collections.Generic;
 using ProtoF.Scanner;
+using ProtoF.AST;
 
 namespace ProtoF.Parser
 {
     public partial class SchemaParser
     {
-        FileDefine ParseFile( )
+        FileNode ParseFile( )
         {
-            var def = new FileDefine();
+            var node = new FileNode();
 
             Expect( TokenType.Package );
 
             Check(TokenType.Identifier, "require package name");
 
-            def.Package = CurrToken.Value;
+            node.Package = CurrToken.Value;
             Next();
 
             while (CurrToken.Type != TokenType.EOF )
@@ -27,12 +23,12 @@ namespace ProtoF.Parser
                 {
                     case TokenType.Message:
                         {
-                            def.Message.Add(ParseMessage());
+                            node.AddMessage(ParseMessage());                            
                         }
                         break;
                     case TokenType.Enum:
                         {
-                            def.Enum.Add(ParseEnum());
+                            node.AddEnum(ParseEnum());                            
                         }
                         break;
                     default:
@@ -43,18 +39,18 @@ namespace ProtoF.Parser
                 }
             }
 
-            return def;
+            return node;
         }
 
-        EnumDefine ParseEnum( )
+        EnumNode ParseEnum( )
         {
-            var def = new EnumDefine();
+            var node = new EnumNode();
 
             Expect(TokenType.Enum);
 
             Check(TokenType.Identifier, "require enum type name");
  
-            def.Name = CurrToken.Value;
+            node.Name = CurrToken.Value;
             Next();
 
             Expect(TokenType.LBrace);
@@ -64,42 +60,41 @@ namespace ProtoF.Parser
             {
                 Check(TokenType.Identifier, "require enum name");
 
-                var valueDef = new EnumValueDefine();
-                valueDef.Name = CurrToken.Value;
+                var valueNode = new EnumValueNode();
+                valueNode.Name = CurrToken.Value;
 
                 Next();
 
                 Expect(TokenType.Assign);
 
                 Check(TokenType.Number, "require enum value");
-                valueDef.Number = CurrToken.ToInteger();
+                valueNode.Number = CurrToken.ToInteger();
                 
                 var comment = ReadComment();
                 if ( comment != null )
                 {
-                    valueDef.TrailingComment = comment;
+                    valueNode.TrailingComment = comment;
                 }
-                
 
-                def.Value.Add(valueDef);
+                node.AddValue(valueNode);                
             }
 
             Expect(TokenType.RBrace);
 
-            return def;
+            return node;
         }
 
-        List<FieldDefine> _unsolvedType = new List<FieldDefine>();
+        List<FieldNode> _unsolvedNode = new List<FieldNode>();
 
-        MessageDefine ParseMessage()
+        MessageNode ParseMessage()
         {
-            var def = new MessageDefine();
+            var node = new MessageNode();
 
             Expect(TokenType.Message);
 
             Check(TokenType.Identifier, "require message type name");
 
-            def.Name = CurrToken.Value;
+            node.Name = CurrToken.Value;
 
             Next();
 
@@ -111,41 +106,41 @@ namespace ProtoF.Parser
                 // 内嵌枚举
                 if ( CurrToken.Type == TokenType.Enum )
                 {
-                    def.Enum.Add(ParseEnum());
+                    node.AddEnum(ParseEnum());                    
                 }
 
                 // 字段名
                 Check(TokenType.Identifier, "require field name");
 
-                var fieldDef = new FieldDefine();
-                fieldDef.Name = CurrToken.Value;
+                var fieldNode = new FieldNode();
+                fieldNode.Name = CurrToken.Value;
 
                 Next();
 
                 if ( CurrToken.Type == TokenType.Array )
                 {
-                    fieldDef.Container = FieldContainer.Array;
+                    fieldNode.Container = FieldContainer.Array;
                     Next();
                     Expect(TokenType.LAngleBracket);
                 }
                 else
                 {
-                    fieldDef.Container = FieldContainer.None;
+                    fieldNode.Container = FieldContainer.None;
                 }
                 
 
                 // 字段类型
-                fieldDef.Type = GetFieldType();
-                fieldDef.TypeName = CurrToken.Value;
+                fieldNode.Type = GetFieldType();
+                fieldNode.TypeName = CurrToken.Value;
+                
+                node.AddField(fieldNode);
 
-                def.Field.Add(fieldDef);
-
-                if ( fieldDef.Type == FieldType.None )
+                if ( fieldNode.Type == FieldType.None )
                 {
-                    _unsolvedType.Add(fieldDef);
+                    _unsolvedNode.Add(fieldNode);
                 }
 
-                if ( fieldDef.Container == FieldContainer.Array )
+                if ( fieldNode.Container == FieldContainer.Array )
                 {
                     Next();
                     Check(TokenType.RAngleBracket, string.Format("expect token: {0}", TokenType.RAngleBracket.ToString()));
@@ -154,14 +149,14 @@ namespace ProtoF.Parser
                 var comment = ReadComment();
                 if (comment != null)
                 {
-                    fieldDef.TrailingComment = comment;
+                    fieldNode.TrailingComment = comment;
                 }                
 
             }
 
             Expect(TokenType.RBrace);
 
-            return def;
+            return node;
         }
 
         FieldType GetFieldType( )

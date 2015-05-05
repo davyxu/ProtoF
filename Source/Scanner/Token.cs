@@ -27,7 +27,7 @@ namespace ProtoF.Scanner
         LBrace,         // {
         RBrace,         // }
 
-        // protof
+        // keywords
         Package,
         Import,
         Enum,

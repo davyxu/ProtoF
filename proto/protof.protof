@@ -4,12 +4,12 @@ package protof
 // 字段类型
 enum FieldType
 {	
-	None = 0
+	None = 0 // 测试注释
 	Bool = 1
 	Int32 = 2
 	UInt32 = 3
 	Int64 = 4
-	UInt64 = 5
+	UInt64 = 5 // 测试注释2
 	String = 6
 	Float = 7
 	Double = 8

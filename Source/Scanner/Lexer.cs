@@ -2,19 +2,27 @@
 
 namespace ProtoF.Scanner
 {
+    public struct Location
+    {
+        public int Line;
+        public string FileName;
+    }
+
     public class Lexer
     {
         TokenMatcher[] _tokenmatchers;
         Tokenizer _tokenizer;
         Token _token;
+        string _srcName;
 
         public void AddMatcher(TokenMatcher[] matcher)
         {
             _tokenmatchers = matcher;
         }
 
-        public void Start( string src )
+        public void Start( string src, string srcName )
         {
+            _srcName = srcName;
             _tokenizer = new Tokenizer(src);            
         }
 
@@ -31,6 +39,17 @@ namespace ProtoF.Scanner
         public char CurrChar
         {
             get { return _tokenizer.Current; }
+        }
+
+        public Location Loc
+        {
+            get
+            {
+                Location loc;
+                loc.Line = _tokenizer.Line;
+                loc.FileName = _srcName;
+                return loc;
+            }
         }
 
         public string DebugProgress
