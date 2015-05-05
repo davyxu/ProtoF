@@ -37,10 +37,13 @@ namespace ProtoF.AST
     {
         public PrintFormat Format;
         public int Indent;
+        public bool ShowAllFieldNumber; // 显示所有字段序号
+        public bool ShowAllEnumNumber; // 显示所有枚举序号
 
         public PrintOption( PrintOption parent )
         {
-            Format = parent.Format;
+            this = (PrintOption)parent.MemberwiseClone();
+            
             Indent = parent.Indent + 1;
         }
 

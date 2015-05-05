@@ -21,7 +21,7 @@ namespace ProtoF.Parser
                 new KeywordMatcher(TokenType.Assign, "="),          
                 new KeywordMatcher(TokenType.LBracket, "("),
                 new KeywordMatcher(TokenType.RBracket, ")"),
-                new KeywordMatcher(TokenType.Comma, ","),
+                new KeywordMatcher(TokenType.Comma, ":"),
                 new KeywordMatcher(TokenType.Dot, "."),
                 new KeywordMatcher(TokenType.SemiColon, ";"),
                 new KeywordMatcher(TokenType.LSqualBracket, "["),
@@ -85,31 +85,41 @@ namespace ProtoF.Parser
             _lexer.Read();
         }
 
-
-        void Check(TokenType t, string fmt, params object[] objs)
+        static Token _err = new Token(TokenType.Unknown, "err");
+        Token FetchToken(TokenType t, string fmt, params object[] objs)
         {
             if (CurrToken.Type != t)
             {
-                Error(fmt, objs);
-            }            
+                Error(_lexer.Loc, fmt, objs);
+                return _err;
+            }
+
+            var tk = CurrToken;
+
+            Next();
+
+            return tk;
         }
 
-        void Expect(TokenType t)
+        void Consume(TokenType t)
         {
             if (CurrToken.Type != t)
             {
-                Error("expect token: {0}", t.ToString());
+                Error(_lexer.Loc, "expect token: {0}", t.ToString());
             }
 
             Next();
         }
 
-        void Consume(TokenType t )
+        bool TryConsume(TokenType t )
         {
             if (CurrToken.Type == t)
             {
                 Next();
+                return true;
             }
+
+            return false;
         }
 
         void Error(string fmt, params object[] objs)

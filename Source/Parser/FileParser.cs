@@ -12,17 +12,13 @@ namespace ProtoF.Parser
 
             ParseCommentAndEOL(node);
 
-            Expect( TokenType.Package );
+            Consume( TokenType.Package );
 
-            Check(TokenType.Identifier, "require package name");
+            node.Package = FetchToken(TokenType.Identifier, "require package name").Value;
 
-            node.Package = CurrToken.Value;
-            Next();
-
-            Expect(TokenType.EOL);
+            Consume(TokenType.EOL);
 
             
-
             while (CurrToken.Type != TokenType.EOF )
             {
                 ParseCommentAndEOL(node);

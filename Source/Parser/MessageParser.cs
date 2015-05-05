@@ -15,18 +15,14 @@ namespace ProtoF.Parser
             // message的头注释
             ParseCommentAndEOL(node);
 
-            Expect(TokenType.Message);
+            Consume(TokenType.Message);
             MarkLocation(node);
 
-            Check(TokenType.Identifier, "require message type name");
+            node.Name = FetchToken(TokenType.Identifier, "require message type name").Value;
 
-            node.Name = CurrToken.Value;
+            TryConsume(TokenType.EOL);
 
-            Next();
-
-            Consume(TokenType.EOL);
-
-            Expect(TokenType.LBrace); Consume(TokenType.EOL);
+            Consume(TokenType.LBrace); TryConsume(TokenType.EOL);
 
 
             while (CurrToken.Type != TokenType.RBrace)
@@ -44,10 +40,14 @@ namespace ProtoF.Parser
                 ParseField(fn, node);
             }
 
-            Expect(TokenType.RBrace); Consume(TokenType.EOL);
+            Consume(TokenType.RBrace); TryConsume(TokenType.EOL);
+
+            FillFieldNumber(node);
 
             return node;
         }
+
+
 
         void ParseField( FileNode fn, MessageNode node )
         {
@@ -56,21 +56,85 @@ namespace ProtoF.Parser
             // 字段的头注释
             ParseCommentAndEOL(node);
 
-            // 字段名
-            Check(TokenType.Identifier, "require field name");
+            ParseFieldName(node, fieldNode);
+
+            ParseFieldType(fn, node, fieldNode);
+
+            switch( CurrToken.Type )
+            {
+                case TokenType.Assign:
+                    ParseNumber(node, fieldNode);
+
+                    if ( CurrToken.Type == TokenType.LSqualBracket )
+                    {
+                        ParseOption(node, fieldNode);
+                    }
+
+                    break;
+                case TokenType.LSqualBracket:
+                    ParseOption(node, fieldNode);
+                    break;
+            }
+
+
+            // 尾注释
+            ParseTrailingComment(fieldNode);
+        }
+
+        void ParseNumber(MessageNode node, FieldNode fieldNode)
+        {
+            Consume(TokenType.Assign);
+            fieldNode.Number = FetchToken(TokenType.Number, "require field number").ToInteger();
+        }
+
+        void ParseOption(MessageNode node, FieldNode fieldNode)
+        {
+            // [
+            Consume(TokenType.LSqualBracket);
+
+            fieldNode.HasOption = true;
+
+            while( CurrToken.Type != TokenType.RSqualBracket )
+            {
+                Location loc = _lexer.Loc;
+
+                var key = FetchToken(TokenType.Identifier, "require option identify");
+                Consume(TokenType.Comma);
+                var value = CurrToken;
+                Next();
+
+                if ( key.Value == "default" )
+                {
+                    fieldNode.DefaultValue = value.Value;
+                }
+                else
+                {
+                    Error(loc, "unknown field option '{0}'", key.Value);
+                }
+            }
+
+            // ]
+            Consume(TokenType.RSqualBracket);
+        }
+
+        void ParseFieldName(MessageNode node, FieldNode fieldNode)
+        {
             MarkLocation(fieldNode);
-
-            fieldNode.Name = CurrToken.Value;
+            // 字段名
+            fieldNode.Name = FetchToken(TokenType.Identifier, "require field name").Value;
+            
             CheckDuplicate(node, _lexer.Loc, fieldNode.Name);
+        }
 
 
-            Next();
-
+        private void ParseFieldType(FileNode fn, MessageNode node, FieldNode fieldNode)
+        {
+            // 类型
             if (CurrToken.Type == TokenType.Array)
             {
                 fieldNode.Container = FieldContainer.Array;
                 Next();
-                Expect(TokenType.LAngleBracket);
+                Consume(TokenType.LAngleBracket);
             }
             else
             {
@@ -94,11 +158,8 @@ namespace ProtoF.Parser
 
             if (fieldNode.Container == FieldContainer.Array)
             {
-                Expect(TokenType.RAngleBracket);
+                Consume(TokenType.RAngleBracket);
             }
-
-            // 尾注释
-            ParseTrailingComment(fieldNode);
         }
 
         FieldType GetFieldType()
@@ -135,12 +196,38 @@ namespace ProtoF.Parser
                     ret = FieldType.Bytes;
                     break;
                 default:
-                        return FieldType.None;
+                    return FieldType.None;
                     
             }
 
 
             return ret;
+        }
+
+        void FillFieldNumber( MessageNode node )
+        {
+            int autoNumber = 1;
+
+            foreach( var field in node.Field )
+            {
+                if ( field.Number == 0 )
+                {
+                    field.Number = autoNumber;
+                    field.NumberIsAutoGen = true;
+                }
+                else
+                {
+                    if (field.Number < autoNumber )
+                    {
+                        Error(field.Loc, "field number < auto gen number {0}", autoNumber);
+                        continue;
+                    }
+
+                    autoNumber = field.Number;
+                }
+
+                autoNumber++;
+            }
         }
 
 

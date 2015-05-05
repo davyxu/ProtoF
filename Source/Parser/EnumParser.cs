@@ -12,17 +12,14 @@ namespace ProtoF.Parser
             ParseCommentAndEOL(node);
 
             // message的头注释
-            Expect(TokenType.Enum);
+            Consume(TokenType.Enum);
             MarkLocation(node);
 
-            Check(TokenType.Identifier, "require enum type name");
+            node.Name = FetchToken(TokenType.Identifier, "require enum type name").Value;
 
-            node.Name = CurrToken.Value;
-            Next();
+            TryConsume(TokenType.EOL);
 
-            Consume(TokenType.EOL);
-
-            Expect(TokenType.LBrace); Consume(TokenType.EOL);
+            Consume(TokenType.LBrace); TryConsume(TokenType.EOL);
 
 
             while (CurrToken.Type != TokenType.RBrace)
@@ -32,31 +29,60 @@ namespace ProtoF.Parser
                 // 字段的头注释
                 ParseCommentAndEOL(valueNode);
 
-                Check(TokenType.Identifier, "require enum name");
+
                 MarkLocation(valueNode);
-
-                
+                valueNode.Name = FetchToken(TokenType.Identifier, "require enum name").Value;
                
-                valueNode.Name = CurrToken.Value;
-
                 CheckDuplicate(node, _lexer.Loc, valueNode.Name);
 
-                Next();
+                if ( TryConsume(TokenType.Assign) )
+                {
+                    valueNode.Number = FetchToken(TokenType.Number, "require enum value").ToInteger();
+                }
+                else
+                {
+                    valueNode.NumberIsAutoGen = true;
+                }
 
-                Expect(TokenType.Assign);
-
-                Check(TokenType.Number, "require enum value");
-                valueNode.Number = CurrToken.ToInteger();
+                
                 node.AddValue(valueNode);
-                Next();
+
 
                 // 尾注释
                 ParseTrailingComment(valueNode);                
             }
 
-            Expect(TokenType.RBrace); Consume(TokenType.EOL);
+            Consume(TokenType.RBrace); TryConsume(TokenType.EOL);
+
+            FillEnumNumber(node);
 
             return node;
         }
+
+        void FillEnumNumber(EnumNode node)
+        {
+            int autoNumber = 1;
+
+            foreach (var en in node.Value)
+            {
+                if (en.NumberIsAutoGen)
+                {
+                    en.Number = autoNumber;
+                }
+                else
+                {
+                    if (en.Number < autoNumber)
+                    {
+                        Error(en.Loc, "enum number < auto gen number {0}", autoNumber);
+                        continue;
+                    }
+
+                    autoNumber = en.Number;
+                }
+
+                autoNumber++;
+            }
+        }
+
     }
 }

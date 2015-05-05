@@ -8,17 +8,19 @@ namespace ProtoF.AST
 {
     public class FieldNode : TrailingCommentNode
     {
+        // Type
         public FieldType Type;
         public FieldContainer Container;
         public string TypeName;
         public Node TypeRef;
 
+        // Option
+        public bool HasOption;
         public string DefaultValue;
-        public int Number;
-        
 
-        // protof特有的
-        public int AutoNumber;
+        // Number
+        public int Number;
+        public bool NumberIsAutoGen;
 
         public override string ToString()
         {
@@ -39,23 +41,64 @@ namespace ProtoF.AST
             }
         }
 
+
+        public string OptionAsString
+        {
+            get
+            {
+                if (HasOption)
+                {
+                    var sb = new StringBuilder();
+
+                    sb.Append("[");
+
+                    if (DefaultValue != "")
+                    {
+                        sb.AppendFormat("default:{0}", DefaultValue);
+                    }
+
+                    sb.Append("] ");
+
+                    return sb.ToString();
+                }
+
+                return string.Empty;
+            }
+        }
+
         public override void Print(StringBuilder sb, PrintOption opt, params object[] values )
         {
             var maxNameLength = (int)values[0];
             var maxTypeLength = (int)values[1];
 
+            // 字段名
             {
                 var space = " ".PadLeft(maxNameLength - Name.Length + 1);                
                 sb.AppendFormat("{0}{1}{2}", opt.MakeIndentSpace(), Name, space);
             }
 
-
+            // 类型
             {
                 var space = " ".PadLeft(maxTypeLength - CompleteTypeName.Length + 1);
                 sb.AppendFormat("{0}{1}", CompleteTypeName, space);
             }
 
+            // 序号
+            {
+                if (Number > 0 && (!NumberIsAutoGen || opt.ShowAllFieldNumber) )
+                {
+                    sb.AppendFormat("= {0} ", Number); 
+                }
+            }
 
+
+            // Option
+            {
+                sb.Append(OptionAsString);
+            }
+
+
+            // 注释
             if (!string.IsNullOrEmpty(TrailingComment))
             {
                 sb.AppendFormat("//{0}", TrailingComment);
@@ -98,12 +141,15 @@ namespace ProtoF.AST
 
             var maxNameLength = Field.Select(x => x.Name.Length).Max();
             var maxTypeLength = Field.Select(x => x.CompleteTypeName.Length).Max();
+            
 
             var subopt = new PrintOption(opt);
 
             foreach (var n in Child)
             {
-                n.Print(sb, subopt, maxNameLength, maxTypeLength );
+                n.Print(sb, subopt, 
+                        maxNameLength, 
+                        maxTypeLength);
             }
 
             sb.Append("}\n");

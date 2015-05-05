@@ -21,6 +21,8 @@ namespace ProtoF
 
             var subopt = new PrintOption();
             subopt.Format = PrintFormat.ProtoF;
+            //subopt.ShowAllFieldNumber = true;
+            //subopt.ShowAllEnumNumber = true;
             file.Print(sb, subopt );
            
             File.WriteAllText(Path.ChangeExtension(inputFile, ".txt"), sb.ToString(), Encoding.UTF8);

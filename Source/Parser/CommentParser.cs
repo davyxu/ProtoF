@@ -26,8 +26,6 @@ namespace ProtoF.Parser
                     return null;
             }
 
-            Next();
-
             return comment;
         }
 
@@ -35,7 +33,7 @@ namespace ProtoF.Parser
         {
             if (CurrToken.Type == TokenType.EOL)
             {
-                Consume(TokenType.EOL);
+                TryConsume(TokenType.EOL);
             }
             else
             {
@@ -53,7 +51,7 @@ namespace ProtoF.Parser
 
             Next();
 
-            Check(TokenType.EOL, "comment must has EOL end");
+            FetchToken(TokenType.EOL, "comment must has EOL end");
 
             return n.Comment;
         }
@@ -70,6 +68,7 @@ namespace ProtoF.Parser
                             var n = new EOLNode();
                             MarkLocation(n);
                             parent.Add(n);
+                            Next();
                             break;
                         }
                     case TokenType.Comment:
@@ -81,7 +80,7 @@ namespace ProtoF.Parser
                         return;
                 }
 
-                Next();
+                
             }
 
         }
