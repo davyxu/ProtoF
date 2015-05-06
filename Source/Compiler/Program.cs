@@ -2,6 +2,7 @@
 using System.IO;
 using ProtoF.AST;
 using ProtoF.Parser;
+using ProtoF.Printer;
 
 namespace ProtoF
 {
@@ -19,11 +20,14 @@ namespace ProtoF
 
             var sb = new StringBuilder();
 
-            var subopt = new PrintOption();
-            subopt.Format = PrintFormat.ProtoF;
+            var opt = new PrintOption();
+            opt.Format = PrintFormat.ProtoF;
             //subopt.ShowAllFieldNumber = true;
             //subopt.ShowAllEnumNumber = true;
-            file.Print(sb, subopt );
+
+            var printer = new ProtoFPrinter();
+            file.PrintVisit(printer, sb, opt);
+
            
             File.WriteAllText(Path.ChangeExtension(inputFile, ".txt"), sb.ToString(), Encoding.UTF8);
         }

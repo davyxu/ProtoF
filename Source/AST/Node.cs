@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using ProtoF.Scanner;
-using ProtoF.Parser;
+using ProtoF.Printer;
 
 namespace ProtoF.AST
 {
@@ -27,35 +27,7 @@ namespace ProtoF.AST
         Array,
     }
 
-    public enum PrintFormat
-    {
-        ProtoF,
-        Protobuf,
-    }
-
-    public struct PrintOption
-    {
-        public PrintFormat Format;
-        public int Indent;
-        public bool ShowAllFieldNumber; // 显示所有字段序号
-        public bool ShowAllEnumNumber; // 显示所有枚举序号
-
-        public PrintOption( PrintOption parent )
-        {
-            this = (PrintOption)parent.MemberwiseClone();
-            
-            Indent = parent.Indent + 1;
-        }
-
-        // 按缩进生成tab
-        public string MakeIndentSpace( )
-        {
-            if (Indent == 0)
-                return string.Empty;
-
-            return "\t".PadLeft(Indent);
-        }
-    }
+ 
 
     public class Node
     {
@@ -74,8 +46,8 @@ namespace ProtoF.AST
             _childNode.Add(n);
         }        
 
-        
-        public virtual void Print(StringBuilder sb, PrintOption opt, params object[] values)
+
+        public virtual void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
 
         }
@@ -108,23 +80,23 @@ namespace ProtoF.AST
     {
         public string Comment;        
 
-        public override void Print(StringBuilder sb, PrintOption opt, params object[] values)
-        {
-            sb.AppendFormat("{0}//{1}\n", opt.MakeIndentSpace(), Comment);
-        }
-
         public override string ToString()
         {
             return base.ToString() + " " + Comment;
+        }
+
+        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        {
+            printer.Print(this, sb, opt, values);
         }
     }
 
     // 空行
     public class EOLNode : Node
     {
-        public override void Print(StringBuilder sb, PrintOption opt, params object[] values)
+        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
-            sb.Append("\n");            
+            printer.Print(this, sb, opt, values);
         }
     }
 

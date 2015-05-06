@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
+using ProtoF.Printer;
 
 namespace ProtoF.AST
 {
@@ -40,16 +40,9 @@ namespace ProtoF.AST
             return string.Format("{0} msg:{1} enum:{2}", Name, Message.Count, Enum.Count);
         }
 
-        public override void Print(StringBuilder sb, PrintOption opt, params object[] values)
+        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
-            sb.AppendFormat("package {0}\n", Package);
-
-
-            foreach (var n in Child)
-            {
-                n.Print(sb, opt);                
-            }
-
+            printer.Print(this, sb, opt, values);
         }
 
     }

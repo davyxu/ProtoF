@@ -1,8 +1,7 @@
-﻿using System;
+﻿using ProtoF.Printer;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ProtoF.AST
 {
@@ -41,70 +40,9 @@ namespace ProtoF.AST
             }
         }
 
-
-        public string OptionAsString
+        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
-            get
-            {
-                if (HasOption)
-                {
-                    var sb = new StringBuilder();
-
-                    sb.Append("[");
-
-                    if (DefaultValue != "")
-                    {
-                        sb.AppendFormat("default:{0}", DefaultValue);
-                    }
-
-                    sb.Append("] ");
-
-                    return sb.ToString();
-                }
-
-                return string.Empty;
-            }
-        }
-
-        public override void Print(StringBuilder sb, PrintOption opt, params object[] values )
-        {
-            var maxNameLength = (int)values[0];
-            var maxTypeLength = (int)values[1];
-
-            // 字段名
-            {
-                var space = " ".PadLeft(maxNameLength - Name.Length + 1);                
-                sb.AppendFormat("{0}{1}{2}", opt.MakeIndentSpace(), Name, space);
-            }
-
-            // 类型
-            {
-                var space = " ".PadLeft(maxTypeLength - CompleteTypeName.Length + 1);
-                sb.AppendFormat("{0}{1}", CompleteTypeName, space);
-            }
-
-            // 序号
-            {
-                if (Number > 0 && (!NumberIsAutoGen || opt.ShowAllFieldNumber) )
-                {
-                    sb.AppendFormat("= {0} ", Number); 
-                }
-            }
-
-
-            // Option
-            {
-                sb.Append(OptionAsString);
-            }
-
-
-            // 注释
-            if (!string.IsNullOrEmpty(TrailingComment))
-            {
-                sb.AppendFormat("//{0}", TrailingComment);
-            }
-
-            sb.Append("\n");
+            printer.Print(this, sb, opt, values);
         }
     }
 
@@ -134,25 +72,9 @@ namespace ProtoF.AST
             return string.Format("{0} fields:{1}", Name, Field.Count);
         }
 
-        public override void Print(StringBuilder sb, PrintOption opt, params object[] values )
+        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
-            sb.AppendFormat("message {0}\n", Name);
-            sb.Append("{\n");
-
-            var maxNameLength = Field.Select(x => x.Name.Length).Max();
-            var maxTypeLength = Field.Select(x => x.CompleteTypeName.Length).Max();
-            
-
-            var subopt = new PrintOption(opt);
-
-            foreach (var n in Child)
-            {
-                n.Print(sb, subopt, 
-                        maxNameLength, 
-                        maxTypeLength);
-            }
-
-            sb.Append("}\n");
+            printer.Print(this, sb, opt, values);
         }
     }
 }

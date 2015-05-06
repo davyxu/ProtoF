@@ -52,7 +52,11 @@
     <Compile Include="Parser\SchemaParser.cs" />
     <Compile Include="Compiler\Program.cs" />
     <Compile Include="AST\SymbolTable.cs" />
+    <Compile Include="Printer\Printer.cs" />
+    <Compile Include="ProtoFPrinter\EnumPrinter.cs" />
+    <Compile Include="ProtoFPrinter\FilePrinter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProtoFPrinter\MessagePrinter.cs" />
     <Compile Include="Scanner\CommentMatcher.cs" />
     <Compile Include="Scanner\IdentifierMatcher.cs" />
     <Compile Include="Scanner\KeywordMatcher.cs" />
