@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ProtoF.Scanner
 {
@@ -16,9 +17,56 @@ namespace ProtoF.Scanner
     public class Lexer
     {
         TokenMatcher[] _tokenmatchers;
-        Tokenizer _tokenizer;
         Token _token;
         string _srcName;
+
+        public Token CurrToken
+        {
+            get { return _token; }
+        }
+
+        string _source;
+
+
+        public int Index { get; set; }
+
+        public int Line { get; set; }
+
+        public string Source { get { return _source; } }
+
+
+
+        public Location Loc
+        {
+            get
+            {
+                Location loc = new Location();
+                loc.Line = Line;
+                loc.FileName = _srcName;
+                return loc;
+            }
+        }
+
+        public string DebugProgress
+        {
+            get { return _source.Substring( Index); }
+        }
+
+        public char CurrChar
+        {
+            get
+            {
+                if (EOF(0))
+                    return '\0';
+
+                return _source[Index];
+            }
+        }
+
+        public int CharLeft
+        {
+            get { return _source.Length - Index; }
+        }
 
         public void AddMatcher(TokenMatcher[] matcher)
         {
@@ -27,39 +75,14 @@ namespace ProtoF.Scanner
 
         public void Start( string src, string srcName )
         {
-            _srcName = srcName;
-            _tokenizer = new Tokenizer(src);            
+            _source = src;
+            Line = 1;
+            _srcName = srcName;        
         }
 
         public override string ToString()
         {
-            return string.Format("{0}@line {1}", _token, _tokenizer.Line);
-        }
-
-        public Token CurrToken
-        {
-            get { return _token; }
-        }
-
-        public char CurrChar
-        {
-            get { return _tokenizer.Current; }
-        }
-
-        public Location Loc
-        {
-            get
-            {
-                Location loc = new Location();
-                loc.Line = _tokenizer.Line;
-                loc.FileName = _srcName;
-                return loc;
-            }
-        }
-
-        public string DebugProgress
-        {
-            get { return _tokenizer.Source.Substring(_tokenizer.Index); }
+            return string.Format("{0}@line {1}", _token, Line);
         }
 
 
@@ -72,12 +95,12 @@ namespace ProtoF.Scanner
 
         public Token ReadByMatcher( TokenMatcher[] matcherlist )
         {
-            while (!_tokenizer.EOF())
+            while (!EOF())
             {
 
                 foreach (var matcher in matcherlist)
                 {
-                    var token = matcher.Match(_tokenizer);
+                    var token = matcher.Match(this);
                     if (token == null)
                     {
                         continue;
@@ -96,5 +119,32 @@ namespace ProtoF.Scanner
             _token = _eof;
             return _token;
         }
+
+        public char Peek(int offset)
+        {
+            if (EOF(offset))
+                return '\0';
+
+            return _source[Index + offset ];
+        }
+
+
+        public void Consume( int count = 1 )
+        {
+            Index+= count ;
+        }
+
+        public bool EOF(int offset = 0)
+        {
+            return Index + offset >= _source.Length;
+        }
+
+        public void Error(string fmt, params object[] objs)
+        {
+            string str = Loc + " " + string.Format(fmt, objs);
+            Console.WriteLine(str);
+            throw new Exception(str);
+        }
+
     }
 }

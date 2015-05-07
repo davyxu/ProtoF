@@ -13,23 +13,23 @@ namespace ProtoF.Scanner
             _type = t;
         }
 
-        public override Token Match(Tokenizer tz)
+        public override Token Match(Lexer lex)
         {
-            if (tz.CharLeft < _word.Length)
+            if (lex.CharLeft < _word.Length)
                 return null;
 
             int index = 0;
 
             foreach( var c in _word )
             {
-                if (tz.Peek(index) != c)
+                if (lex.Peek(index) != c)
                     return null;
 
                 index++;
             }
 
 
-            tz.Consume(_word.Length);
+            lex.Consume(_word.Length);
 
 
             return new Token(_type, _word );

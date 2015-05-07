@@ -8,7 +8,7 @@ namespace ProtoF.AST
     public class FileNode : Node
     {
         public string Package;
-        public List<string> Dependency = new List<string>();
+        public List<string> Import = new List<string>();
         public List<MessageNode> Message = new List<MessageNode>();
         public List<EnumNode> Enum = new List<EnumNode>();
 
@@ -44,6 +44,32 @@ namespace ProtoF.AST
         {
             printer.Print(this, sb, opt, values);
         }
+    }
 
+    public class PackageNode : Node
+    {        
+        public override string ToString()
+        {
+            return base.ToString() + " " + Name;
+        }
+
+        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        {
+            printer.Print(this, sb, opt, values);
+        }
+    }
+
+    public class ImportNode : Node
+    {     
+
+        public override string ToString()
+        {
+            return base.ToString() + " " + Name;
+        }
+
+        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        {
+            printer.Print(this, sb, opt, values);
+        }
     }
 }

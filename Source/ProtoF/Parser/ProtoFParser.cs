@@ -14,6 +14,7 @@ namespace ProtoF.Parser
                 new LineEndMatcher(),
                 new WhitespaceMatcher().Ignore(),
                 new CommentMatcher(),
+                new QuotedStringMatcher(),
                 
                 new KeywordMatcher(TokenType.Assign, "="),          
                 new KeywordMatcher(TokenType.LBracket, "("),

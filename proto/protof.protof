@@ -1,5 +1,5 @@
 package protof
-// import etc
+import "numdef.protof"
 
 // 字段类型
 enum FieldType

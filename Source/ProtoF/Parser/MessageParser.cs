@@ -6,9 +6,7 @@ namespace ProtoF.Parser
 {
     public partial class ProtoFParser
     {
-        
-
-        MessageNode ParseMessage( FileNode fn )
+        void ParseMessage( FileNode filenode )
         {
             var node = new MessageNode();
 
@@ -20,6 +18,13 @@ namespace ProtoF.Parser
 
             node.Name = FetchToken(TokenType.Identifier, "require message type name").Value;
 
+            CheckDuplicate(node.Loc, filenode.Package, node.Name);
+
+            filenode.AddMessage(node);
+
+            AddSymbol(filenode.Package, node.Name, node);
+
+
             TryConsume(TokenType.EOL);
 
             Consume(TokenType.LBrace); TryConsume(TokenType.EOL);
@@ -30,21 +35,15 @@ namespace ProtoF.Parser
                 // 内嵌枚举
                 if (CurrToken.Type == TokenType.Enum)
                 {
-                    var en = ParseEnum();
-
-                    CheckDuplicate(node, en.Loc, en.Name);
-
-                    node.AddEnum(en);
+                    ParseEnum(filenode);                   
                 }
 
-                ParseField(fn, node);
+                ParseField(filenode, node);
             }
 
             Consume(TokenType.RBrace); TryConsume(TokenType.EOL);
 
             FillFieldNumber(node);
-
-            return node;
         }
 
 
@@ -273,7 +272,7 @@ namespace ProtoF.Parser
             {
                 if ( !ResolveFieldType( fn, fieldNode ) )
                 {
-                    Error(fieldNode.Loc, "{0} undefined!", fieldNode.TypeName);
+                    Error(fieldNode.Loc, "'{0}' undefined!", fieldNode.TypeName);
                 }
                 
             }

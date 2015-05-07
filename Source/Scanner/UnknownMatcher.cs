@@ -3,11 +3,11 @@
 
     public class UnknownMatcher : TokenMatcher
     {
-        public override Token Match(Tokenizer tz)
+        public override Token Match(Lexer lex)
         {
-            int beginIndex = tz.Index;
-            tz.Consume();
-            return new Token(TokenType.Unknown, tz.Source.Substring( beginIndex, 1) );
+            int beginIndex = lex.Index;
+            lex.Consume();
+            return new Token(TokenType.Unknown, lex.Source.Substring( beginIndex, 1) );
         }
     }
 }

@@ -6,7 +6,7 @@ namespace ProtoF.Scanner
     {
         bool _ignore;
 
-        public abstract Token Match(Tokenizer tz);
+        public abstract Token Match(Lexer tz);
         public TokenMatcher Ignore( )
         {
             _ignore = true;

@@ -5,7 +5,7 @@ namespace ProtoF.Parser
 {
     public partial class ProtoFParser
     {
-        EnumNode ParseEnum()
+        void ParseEnum(FileNode filenode )
         {
             var node = new EnumNode();
             
@@ -16,6 +16,12 @@ namespace ProtoF.Parser
             MarkLocation(node);
 
             node.Name = FetchToken(TokenType.Identifier, "require enum type name").Value;
+
+            CheckDuplicate(node.Loc, filenode.Package, node.Name);
+
+            filenode.AddEnum(node);
+
+            AddSymbol(filenode.Package, node.Name, node);
 
             TryConsume(TokenType.EOL);
 
@@ -55,13 +61,11 @@ namespace ProtoF.Parser
             Consume(TokenType.RBrace); TryConsume(TokenType.EOL);
 
             FillEnumNumber(node);
-
-            return node;
         }
 
         void FillEnumNumber(EnumNode node)
         {
-            int autoNumber = 1;
+            int autoNumber = 0;
 
             foreach (var en in node.Value)
             {

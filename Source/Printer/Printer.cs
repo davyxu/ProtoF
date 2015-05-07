@@ -9,6 +9,7 @@ namespace ProtoF.Printer
         Protobuf,
     }
 
+
     public struct PrintOption
     {
         public PrintFormat Format;
@@ -47,5 +48,9 @@ namespace ProtoF.Printer
         void Print(CommentNode node, StringBuilder sb, PrintOption opt, params object[] values);
 
         void Print(EOLNode node, StringBuilder sb, PrintOption opt, params object[] values);
+
+        void Print(PackageNode node, StringBuilder sb, PrintOption opt, params object[] values);
+
+        void Print(ImportNode node, StringBuilder sb, PrintOption opt, params object[] values);
     }
 }

@@ -97,6 +97,7 @@
     <Compile Include="CommandLine\Text\HeadingInfo.cs" />
     <Compile Include="CommandLine\Text\HelpText.cs" />
     <Compile Include="CommandLine\Text\_ParsingErrorsHandler.cs" />
+    <Compile Include="Compiler\CommandOptions.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="ProtoF\Parser\CommentParser.cs" />
     <Compile Include="ProtoF\Parser\MessageParser.cs" />
@@ -116,8 +117,8 @@
     <Compile Include="Scanner\Lexer.cs" />
     <Compile Include="Scanner\LineEndMatcher.cs" />
     <Compile Include="Scanner\NumeralMatcher.cs" />
+    <Compile Include="Scanner\QuotedStringMatcher.cs" />
     <Compile Include="Scanner\Token.cs" />
-    <Compile Include="Scanner\Tokenizer.cs" />
     <Compile Include="Scanner\TokenMatcher.cs" />
     <Compile Include="Scanner\UnknownMatcher.cs" />
     <Compile Include="Scanner\WhitespaceMatcher.cs" />

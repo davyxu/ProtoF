@@ -2,6 +2,7 @@
 using System.Text;
 using ProtoF.Scanner;
 using ProtoF.Printer;
+using System;
 
 namespace ProtoF.AST
 {
@@ -27,9 +28,9 @@ namespace ProtoF.AST
         Array,
     }
 
- 
 
-    public class Node
+
+    public class Node 
     {
         public string Name;
         public Location Loc;    // 代码位置
@@ -44,12 +45,11 @@ namespace ProtoF.AST
         public void Add( Node n )
         {
             _childNode.Add(n);
-        }        
-
+        }
 
         public virtual void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
-
+            throw new NotImplementedException();
         }
     }
 

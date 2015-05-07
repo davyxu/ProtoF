@@ -11,13 +11,13 @@ namespace ProtoF.Scanner
             return c == ' ' || c == '\t' || c == '\r' || c == '\n';
         }
 
-        public override Token Match(Tokenizer tz)
+        public override Token Match(Lexer lex)
         {
             
             int count = 0;
             for (; ; count++)
             {
-                var c = tz.Peek(count);
+                var c = lex.Peek(count);
 
                 if (c == ' ' || c == '\t' )
                 {
@@ -30,9 +30,9 @@ namespace ProtoF.Scanner
             if (count == 0)
                 return null;
 
-            int beginIndex = tz.Index;
+            int beginIndex = lex.Index;
 
-            tz.Consume( count );
+            lex.Consume( count );
 
             return WhiteToken;
         }

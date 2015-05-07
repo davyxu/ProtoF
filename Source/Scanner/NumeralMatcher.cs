@@ -4,23 +4,23 @@ namespace ProtoF.Scanner
 {
     public class NumeralMatcher : TokenMatcher
     {
-        public override Token Match(Tokenizer tz)
+        public override Token Match(Lexer lex)
         {
 
-            if (!Char.IsDigit(tz.Current))
+            if (!Char.IsDigit(lex.CurrChar))
                 return null;
 
-            int beginIndex = tz.Index;
+            int beginIndex = lex.Index;
 
 
             do
             {
-                tz.Consume();
+                lex.Consume();
 
-            } while (char.IsDigit(tz.Current) || tz.Current == '.');
+            } while (char.IsDigit(lex.CurrChar) || lex.CurrChar == '.');
 
 
-            return new Token(TokenType.Number, tz.Source.Substring( beginIndex, tz.Index - beginIndex) );
+            return new Token(TokenType.Number, lex.Source.Substring( beginIndex, lex.Index - beginIndex) );
         }
 
     }

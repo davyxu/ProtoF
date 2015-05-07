@@ -85,6 +85,8 @@ namespace ProtoF.Parser
             }
 
             Console.WriteLine(str);
+
+            throw new Exception(str);
         }
     }
 

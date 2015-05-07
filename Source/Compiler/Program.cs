@@ -1,9 +1,7 @@
 ﻿using System.Text;
 using System.IO;
-using ProtoF.AST;
 using ProtoF.Parser;
 using ProtoF.Printer;
-using CommandLine;
 using CommandLine.Text;
 using System;
 

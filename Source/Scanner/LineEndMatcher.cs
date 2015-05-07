@@ -6,27 +6,27 @@ namespace ProtoF.Scanner
     {
         public static Token LineEndToken = new Token(TokenType.EOL, null);
 
-        public override Token Match(Tokenizer tz)
+        public override Token Match(Lexer lex)
         {
-            switch( tz.Current )
+            switch( lex.CurrChar )
             {
                 case '\r':
-                    if ( tz.Peek(1) == '\n' )
+                    if ( lex.Peek(1) == '\n' )
                     {
                         // Windows
-                        tz.Consume(2);
+                        lex.Consume(2);
                     }
                     else
                     {
                         // Mac
-                        tz.Consume(1);
+                        lex.Consume(1);
                     }
 
-                    tz.Line++;
+                    lex.Line++;
                     return LineEndToken;
                 case '\n': // Linux
-                    tz.Consume(1);
-                    tz.Line++;
+                    lex.Consume(1);
+                    lex.Line++;
                     return LineEndToken;
             }
 

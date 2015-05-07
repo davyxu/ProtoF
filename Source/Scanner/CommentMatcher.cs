@@ -4,24 +4,24 @@ namespace ProtoF.Scanner
 {    
     public class CommentMatcher : TokenMatcher
     {
-        public override Token Match(Tokenizer tz)
+        public override Token Match(Lexer lex)
         {
-            if (tz.Current != '/' || tz.Peek(1) != '/')
+            if (lex.CurrChar != '/' || lex.Peek(1) != '/')
                 return null;
 
-            tz.Consume(2);
+            lex.Consume(2);
 
-            int beginIndex = tz.Index;
+            int beginIndex = lex.Index;
 
             do
             {
-                tz.Consume();
+                lex.Consume();
 
-            } while (tz.Current != '\r' && tz.Current != '\n' && tz.Current != '\0');
+            } while (lex.CurrChar != '\r' && lex.CurrChar != '\n' && lex.CurrChar != '\0');
 
 
 
-            return new Token(TokenType.Comment, tz.Source.Substring(beginIndex, tz.Index - beginIndex));
+            return new Token(TokenType.Comment, lex.Source.Substring(beginIndex, lex.Index - beginIndex));
         }
     }
 }
