@@ -4,7 +4,7 @@ using ProtoF.AST;
 
 namespace ProtoF.Parser
 {
-    public partial class SchemaParser
+    public partial class ProtoFParser
     {
         FileNode ParseFile( )
         {

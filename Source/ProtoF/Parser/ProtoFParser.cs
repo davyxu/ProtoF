@@ -4,12 +4,9 @@ using ProtoF.AST;
 
 namespace ProtoF.Parser
 {
-    public partial class SchemaParser
+    public partial class ProtoFParser : Parser
     {
-        Lexer _lexer = new Lexer();
-        SymbolTable _symbols = new SymbolTable();
-
-        public SchemaParser()
+        public ProtoFParser()
         {
             _lexer.AddMatcher(new TokenMatcher[]{
                 new NumeralMatcher(),
@@ -53,10 +50,7 @@ namespace ProtoF.Parser
             });
         }
 
-        public Token CurrToken
-        {
-            get { return _lexer.CurrToken;  }
-        }
+ 
 
         public FileNode Parse(string source, string srcName)
         {
@@ -67,79 +61,6 @@ namespace ProtoF.Parser
             Next();
 
             return ParseFile();
-        }
-
-        // 给节点标记在文本中的位置
-        void MarkLocation( Node n )
-        {
-            n.Loc = _lexer.Loc;
-        }
-
-        public override string ToString()
-        {
-            return _lexer.ToString();
-        }
-
-        void Next()
-        {
-            _lexer.Read();
-        }
-
-        static Token _err = new Token(TokenType.Unknown, "err");
-        Token FetchToken(TokenType t, string fmt, params object[] objs)
-        {
-            if (CurrToken.Type != t)
-            {
-                Error(_lexer.Loc, fmt, objs);
-                return _err;
-            }
-
-            var tk = CurrToken;
-
-            Next();
-
-            return tk;
-        }
-
-        void Consume(TokenType t)
-        {
-            if (CurrToken.Type != t)
-            {
-                Error(_lexer.Loc, "expect token: {0}", t.ToString());
-            }
-
-            Next();
-        }
-
-        bool TryConsume(TokenType t )
-        {
-            if (CurrToken.Type == t)
-            {
-                Next();
-                return true;
-            }
-
-            return false;
-        }
-
-        void Error(string fmt, params object[] objs)
-        {            
-            Error(null, fmt, objs);
-        }
-
-        void Error( Location loc, string fmt, params object[] objs )
-        {
-            string str;
-            if ( loc != null )
-            {
-                str = loc + " " + string.Format(fmt, objs);
-            }
-            else
-            {
-                str = string.Format(fmt, objs);
-            }
-
-            Console.WriteLine(str);            
         }
     }
 
