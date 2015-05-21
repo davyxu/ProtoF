@@ -21,13 +21,10 @@ namespace ProtoF
                 return;
             }
 
-            var parser = new ProtoFParser();
+            var tool = new Tool();
+            tool.SearchPath = options.SearchPath;
 
-            var inputFile = "../../../proto/protof.protof";
-
-            var data = File.ReadAllText(inputFile, Encoding.UTF8);
-
-            var file = parser.Parse(data, Path.GetFileName(inputFile) );
+            var file = new ProtoFParser(tool).StartParseFile(options.InputFile);
 
             var sb = new StringBuilder();
 
@@ -36,11 +33,10 @@ namespace ProtoF
             //subopt.ShowAllFieldNumber = true;
             //subopt.ShowAllEnumNumber = true;
 
-            var printer = new ProtoFPrinter();
-            file.PrintVisit(printer, sb, opt);
+            file.PrintVisit(new ProtoFPrinter(), sb, opt);
 
-           
-            File.WriteAllText(Path.ChangeExtension(inputFile, ".txt"), sb.ToString(), Encoding.UTF8);
+
+            File.WriteAllText(options.OutputFile, sb.ToString(), Encoding.UTF8);
         }
     }
 }

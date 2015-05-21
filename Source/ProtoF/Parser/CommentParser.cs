@@ -3,7 +3,7 @@ using ProtoF.Scanner;
 
 namespace ProtoF.Parser
 {
-    public partial class ProtoFParser
+    public partial class ProtoFParser : Parser
     {
 
         // 解析纯注释, 不是注释跳过

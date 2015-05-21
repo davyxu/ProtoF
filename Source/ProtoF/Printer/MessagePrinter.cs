@@ -33,17 +33,20 @@ namespace ProtoF.Printer
             var maxNameLength = (int)values[0];
             var maxTypeLength = (int)values[1];
 
-            // 字段名
-            {
-                var space = " ".PadLeft(maxNameLength - node.Name.Length + 1);
-                sb.AppendFormat("{0}{1}{2}", opt.MakeIndentSpace(), node.Name, space);
-            }
+            sb.Append(opt.MakeIndentSpace());
 
             // 类型
             {
                 var space = " ".PadLeft(maxTypeLength - node.CompleteTypeName.Length + 1);
                 sb.AppendFormat("{0}{1}", node.CompleteTypeName, space);
             }
+
+            // 字段名
+            {
+                var space = " ".PadLeft(maxNameLength - node.Name.Length + 1);
+                sb.AppendFormat("{0}{1}",  node.Name, space);
+            }
+
 
             // 序号
             {

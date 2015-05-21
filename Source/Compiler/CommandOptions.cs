@@ -19,6 +19,9 @@ namespace ProtoF
         [Option('o', "outputfile", Required = true, HelpText = "output file name")]
         public string OutputFile { get; set; }
 
+        [Option('s', "searchpath", Required = false, HelpText = "search path for filename")]
+        public string SearchPath { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {

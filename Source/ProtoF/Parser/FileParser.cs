@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace ProtoF.Parser
 {
-    public partial class ProtoFParser
+    public partial class ProtoFParser : Parser
     {
         void ParsePackage( FileNode filenode )
         {
@@ -40,13 +40,21 @@ namespace ProtoF.Parser
             while (TryConsume(TokenType.Import))
             {
                 node.Name = FetchToken(TokenType.QuotedString, "require file name").Value;
-
-                if ( filenode.Import.Contains(node.Name) )
+                
+                if (filenode.Import.Exists(x => x.Name == node.Name))
                 {
                     Error(_lexer.Loc, "duplicate import filename");
                 }
 
-                filenode.Import.Add(node.Name);
+                if ( filenode.Name == node.Name )
+                {
+                    Error(_lexer.Loc, "can not import self");
+                }
+
+                var parser = new ProtoFParser(_tool);
+                parser.StartParseFile(node.Name);
+
+                filenode.Import.Add(node );
                 filenode.Add(node);
 
                 Consume(TokenType.EOL);
@@ -54,9 +62,11 @@ namespace ProtoF.Parser
         }
 
 
-        FileNode ParseFile( )
+        FileNode ParseFile( string name  )
         {
             var node = new FileNode();
+            node.Name = name;
+            _tool.AddFileNode(node);
 
             while (CurrToken.Type != TokenType.EOF )
             {
@@ -94,6 +104,8 @@ namespace ProtoF.Parser
                 }
             }
 
+            
+
             ResolveUnknownNode(node);
 
             return node;
@@ -101,13 +113,13 @@ namespace ProtoF.Parser
 
         void AddSymbol( string packageName, string name, Node n  )
         {
-            _symbols.Add(packageName, name, n);
+            _tool.Symbols.Add(packageName, name, n);
         }
 
 
         void CheckDuplicate(Location loc, string packageName, string name)
-        {            
-            if (_symbols.Get(packageName, name) != null )
+        {
+            if (_tool.Symbols.Get(packageName, name) != null)
             {
                 Error(loc, "{0} already defined in {1} package", name, packageName);
             }

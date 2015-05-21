@@ -7,7 +7,14 @@ namespace ProtoF.Parser
     public class Parser
     {
         protected Lexer _lexer = new Lexer();
-        protected SymbolTable _symbols = new SymbolTable();
+        
+
+        protected Tool _tool;
+
+        public Parser( Tool t )
+        {
+            _tool = t;
+        }
 
         public Token CurrToken
         {

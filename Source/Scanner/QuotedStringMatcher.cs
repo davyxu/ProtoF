@@ -10,6 +10,7 @@ namespace ProtoF.Scanner
             if (lex.CurrChar != '"' && lex.CurrChar != '\'')
                 return null;
 
+            // 左边的marker
             var marker = lex.CurrChar;
             lex.Consume();
 
@@ -54,9 +55,6 @@ namespace ProtoF.Scanner
                     case '\n':
                         lex.Error("unfinished string");                        
                         break;                        
-                    default:
-                        lex.Consume();
-                        break;
                 }
 
                 if (lex.CurrChar == marker)
@@ -65,6 +63,7 @@ namespace ProtoF.Scanner
                 }
 
                 sb.Append(lex.CurrChar);
+                lex.Consume();
 
             }
 

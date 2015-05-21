@@ -1,12 +1,15 @@
 ﻿using ProtoF.Scanner;
 using System;
 using ProtoF.AST;
+using System.IO;
+using System.Text;
 
 namespace ProtoF.Parser
 {
     public partial class ProtoFParser : Parser
     {
-        public ProtoFParser()
+        public ProtoFParser( Tool t )
+            : base( t )
         {
             _lexer.AddMatcher(new TokenMatcher[]{
                 new NumeralMatcher(),
@@ -51,17 +54,31 @@ namespace ProtoF.Parser
             });
         }
 
- 
 
-        public FileNode Parse(string source, string srcName)
+        public FileNode StartParseFile( string filename )
+        {
+            var n = _tool.GetFileNode(filename);
+            if (n != null)
+                return n;
+
+            var inputFile = _tool.GetUsableFileName(filename);            
+
+            var data = File.ReadAllText(inputFile, Encoding.UTF8);
+
+            var parser = new ProtoFParser(_tool);
+
+            return parser.StartParse(data, Path.GetFileName(inputFile));
+        }
+
+
+        public FileNode StartParse(string source, string srcName)
         {
             _unsolvedNode.Clear();
-            _symbols.Clear();
             _lexer.Start(source, srcName);
 
             Next();
 
-            return ParseFile();
+            return ParseFile(srcName);
         }
     }
 

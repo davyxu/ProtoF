@@ -3,7 +3,7 @@ using ProtoF.Scanner;
 
 namespace ProtoF.Parser
 {
-    public partial class ProtoFParser
+    public partial class ProtoFParser : Parser
     {
         void ParseEnum(FileNode filenode )
         {

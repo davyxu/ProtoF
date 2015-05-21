@@ -8,7 +8,7 @@ namespace ProtoF.AST
     public class FileNode : Node
     {
         public string Package;
-        public List<string> Import = new List<string>();
+        public List<ImportNode> Import = new List<ImportNode>();
         public List<MessageNode> Message = new List<MessageNode>();
         public List<EnumNode> Enum = new List<EnumNode>();
 
@@ -16,7 +16,7 @@ namespace ProtoF.AST
         {
             Child.Add(n);
             Message.Add(n);
-        }
+        }        
 
 
         public MessageNode GetMessageByName( string name )
@@ -44,6 +44,8 @@ namespace ProtoF.AST
         {
             printer.Print(this, sb, opt, values);
         }
+
+
     }
 
     public class PackageNode : Node

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ProtoF.Parser
 {
-    public partial class ProtoFParser
+    public partial class ProtoFParser : Parser
     {
         void ParseMessage( FileNode filenode )
         {
@@ -55,9 +55,9 @@ namespace ProtoF.Parser
             // 字段的头注释
             ParseCommentAndEOL(node);
 
-            ParseFieldName(node, fieldNode);
-
             ParseFieldType(fn, node, fieldNode);
+
+            ParseFieldName(node, fieldNode);
 
             switch( CurrToken.Type )
             {
@@ -240,7 +240,7 @@ namespace ProtoF.Parser
         // 就这节点类型
         bool ResolveFieldType( FileNode fn, FieldNode fieldNode )
         {
-            var symbols = _symbols.Get(fn.Package, fieldNode.TypeName);
+            var symbols = _tool.Symbols.Get(fn.Package, fieldNode.TypeName);
             if (symbols == null)
             {   
                 return false;

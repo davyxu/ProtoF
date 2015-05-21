@@ -1,0 +1,16 @@
+package protof
+
+
+// Ã¶¾Ù
+message EnumDefine
+{
+	string                 Name  
+	array<EnumValueDefine> Value 
+}
+
+// Ã¶¾ÙÖµ
+message EnumValueDefine
+{
+	string Name   
+	int32  Number 
+}
