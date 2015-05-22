@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using ProtoF.Scanner;
-using ProtoF.AST;
+using ProtoTool.Scanner;
+using ProtoTool.Schema;
 using System.Linq;
 
-namespace ProtoF.Parser
+namespace ProtoTool.ProtoF
 {
     public partial class ProtoFParser : Parser
     {
@@ -62,7 +62,7 @@ namespace ProtoF.Parser
         }
 
 
-        FileNode ParseFile( string name  )
+        public override FileNode ParseFile(string name)
         {
             var node = new FileNode();
             node.Name = name;
@@ -111,27 +111,6 @@ namespace ProtoF.Parser
             return node;
         }
 
-        void AddSymbol( string packageName, string name, Node n  )
-        {
-            _tool.Symbols.Add(packageName, name, n);
-        }
-
-
-        void CheckDuplicate(Location loc, string packageName, string name)
-        {
-            if (_tool.Symbols.Get(packageName, name) != null)
-            {
-                Error(loc, "{0} already defined in {1} package", name, packageName);
-            }
-        }
-
-        void CheckDuplicate(ContainerNode n, Location loc, string name)
-        {
-            if (n.Contain( name ) )
-            {
-                Error(loc, "{0} already defined", name);
-            }
-        }
     }
 
 

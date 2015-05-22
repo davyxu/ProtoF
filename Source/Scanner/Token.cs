@@ -1,5 +1,5 @@
 ﻿
-namespace ProtoF.Scanner
+namespace ProtoTool.Scanner
 {
     public enum TokenType
     {
@@ -32,6 +32,11 @@ namespace ProtoF.Scanner
         Import,
         Enum,
         Message,
+
+        // Protobuf
+        Optional,
+        Required,
+        Repeated,
 
         // type
         Bool,

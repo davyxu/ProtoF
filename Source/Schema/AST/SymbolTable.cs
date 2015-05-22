@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ProtoF.AST
+namespace ProtoTool.Schema
 {
     public class SymbolTable
     {

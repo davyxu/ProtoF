@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using ProtoF.Printer;
 
-namespace ProtoF.AST
+namespace ProtoTool.Schema
 {
     public class EnumValueNode : TrailingCommentNode
     {
         public int Number;
+
+
         public bool NumberIsAutoGen;
 
         public override string ToString()
@@ -14,7 +15,7 @@ namespace ProtoF.AST
             return string.Format("{0}={1}", Name, Number);
         }
 
-        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        public override void PrintVisit(Printer printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
             printer.Print(this, sb, opt, values);
         }
@@ -36,7 +37,7 @@ namespace ProtoF.AST
             Value.Add(n);
         }
 
-        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        public override void PrintVisit(Printer printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
             printer.Print(this, sb, opt, values);
         }

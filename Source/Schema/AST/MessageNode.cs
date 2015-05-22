@@ -1,15 +1,27 @@
-﻿using ProtoF.Printer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ProtoF.AST
+namespace ProtoTool.Schema
 {
+    public enum FieldContainer
+    {
+        None = 0,
+        Array,
+    }
+
+    public enum PBFieldLabel
+    {
+        Optional,
+        Required,
+        Repeated,
+    }
+
     public class FieldNode : TrailingCommentNode
     {
         // Type
         public FieldType Type;
-        public FieldContainer Container;
+        
         public string TypeName;
         public Node TypeRef;
 
@@ -19,12 +31,12 @@ namespace ProtoF.AST
 
         // Number
         public int Number;
+
+        // ProtoF
+        public FieldContainer Container;
         public bool NumberIsAutoGen;
 
-        public override string ToString()
-        {
-            return string.Format("{0} {1} {2}", Name, Type, TypeName);
-        }
+        public PBFieldLabel PBLabel;
 
         public string CompleteTypeName
         {
@@ -40,10 +52,18 @@ namespace ProtoF.AST
             }
         }
 
-        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1} {2}", Name, Type, TypeName);
+        }
+
+        public override void PrintVisit(Printer printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
             printer.Print(this, sb, opt, values);
         }
+
+
     }
 
 
@@ -72,7 +92,7 @@ namespace ProtoF.AST
             return string.Format("{0} fields:{1}", Name, Field.Count);
         }
 
-        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        public override void PrintVisit(Printer printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
             printer.Print(this, sb, opt, values);
         }

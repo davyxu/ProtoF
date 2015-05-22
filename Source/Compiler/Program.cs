@@ -1,16 +1,20 @@
 ﻿using System.Text;
 using System.IO;
-using ProtoF.Parser;
-using ProtoF.Printer;
 using CommandLine.Text;
 using System;
+using ProtoTool.Schema;
+using ProtoTool.ProtoF;
+using ProtoTool.Protobuf;
 
-namespace ProtoF
+namespace ProtoTool
 {
 
     class Program
     {
         private static readonly HeadingInfo HeadingInfo = new HeadingInfo("ProtoF", "1.0");
+
+
+
 
         static void Main(string[] args)
         {
@@ -24,19 +28,36 @@ namespace ProtoF
             var tool = new Tool();
             tool.SearchPath = options.SearchPath;
 
-            var file = new ProtoFParser(tool).StartParseFile(options.InputFile);
 
-            var sb = new StringBuilder();
+            Parser parser;
+            Printer printer;
 
-            var opt = new PrintOption();
-            opt.Format = PrintFormat.ProtoF;
-            //subopt.ShowAllFieldNumber = true;
-            //subopt.ShowAllEnumNumber = true;
+            if ( options.Method == "pf2pf" )
+            {
+                parser = new ProtoFParser(tool);
+                printer = new ProtoFPrinter();
+            }
+            else if (options.Method == "pb2pf")
+            {
+                parser = new ProtobufParser(tool);
+                printer = new ProtoFPrinter();
+            }
+            else if (options.Method == "pf2pb")
+            {
+                parser = new ProtoFParser(tool);
+                printer = new ProtobufPrinter();
+            }
+            else if (options.Method == "pb2pb")
+            {
+                parser = new ProtobufParser(tool);
+                printer = new ProtobufPrinter();
+            }
+            else
+            {
+                throw new Exception("Unknown method");
+            }
 
-            file.PrintVisit(new ProtoFPrinter(), sb, opt);
-
-
-            File.WriteAllText(options.OutputFile, sb.ToString(), Encoding.UTF8);
+            Tool.Convertor(options.InputFile, options.OutputFile, parser, printer);          
         }
     }
 }

@@ -1,11 +1,10 @@
-﻿using ProtoF.AST;
-using ProtoF.Scanner;
+﻿using ProtoTool.Schema;
+using ProtoTool.Scanner;
 
-namespace ProtoF.Parser
+namespace ProtoTool.Schema
 {
-    public partial class ProtoFParser : Parser
+    public partial class Parser
     {
-
         // 解析纯注释, 不是注释跳过
         string ParseComment(Node parent)
         {
@@ -24,7 +23,8 @@ namespace ProtoF.Parser
             return comment;
         }
 
-        void ParseTrailingComment(TrailingCommentNode parent)
+        // 尾注释
+        protected void ParseTrailingComment(TrailingCommentNode parent)
         {
             if (CurrToken.Type == TokenType.EOL)
             {
@@ -40,7 +40,7 @@ namespace ProtoF.Parser
         string RawParseComment(Node parent)
         {
             var n = new CommentNode();
-            MarkLocation(n);            
+            MarkLocation(n);
             n.Comment = CurrToken.Value;
             parent.Add(n);
 
@@ -52,7 +52,7 @@ namespace ProtoF.Parser
         }
 
         // 解析非上下文关联的注释及回车
-        void ParseCommentAndEOL(Node parent)
+        protected void ParseCommentAndEOL(Node parent)
         {
             while (true)
             {
@@ -75,10 +75,9 @@ namespace ProtoF.Parser
                         return;
                 }
 
-                
+
             }
 
         }
-
     }
 }

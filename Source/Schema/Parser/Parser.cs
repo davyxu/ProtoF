@@ -1,10 +1,12 @@
-﻿using ProtoF.Scanner;
+﻿using ProtoTool.Scanner;
 using System;
-using ProtoF.AST;
+using ProtoTool.Schema;
+using System.Text;
+using System.IO;
 
-namespace ProtoF.Parser
+namespace ProtoTool.Schema
 {
-    public class Parser
+    public partial class Parser
     {
         protected Lexer _lexer = new Lexer();
         
@@ -94,6 +96,59 @@ namespace ProtoF.Parser
             Console.WriteLine(str);
 
             throw new Exception(str);
+        }
+
+
+        public FileNode StartParseFile(string filename)
+        {
+            var n = _tool.GetFileNode(filename);
+            if (n != null)
+                return n;
+
+            var inputFile = _tool.GetUsableFileName(filename);
+
+            var data = File.ReadAllText(inputFile, Encoding.UTF8);
+
+            return StartParse(data, Path.GetFileName(inputFile));
+        }
+
+
+        public FileNode StartParse(string source, string srcName)
+        {
+            _unsolvedNode.Clear();
+            _lexer.Start(source, srcName);
+
+            Next();
+
+            return ParseFile(srcName);
+        }
+
+        public virtual FileNode ParseFile( string srcName )
+        {
+            throw new NotImplementedException();
+        }
+
+
+        protected void AddSymbol(string packageName, string name, Node n)
+        {
+            _tool.Symbols.Add(packageName, name, n);
+        }
+
+
+        protected void CheckDuplicate(Location loc, string packageName, string name)
+        {
+            if (_tool.Symbols.Get(packageName, name) != null)
+            {
+                Error(loc, "{0} already defined in {1} package", name, packageName);
+            }
+        }
+
+        protected void CheckDuplicate(ContainerNode n, Location loc, string name)
+        {
+            if (n.Contain(name))
+            {
+                Error(loc, "{0} already defined", name);
+            }
         }
     }
 

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using ProtoF.Printer;
 
-namespace ProtoF.AST
+namespace ProtoTool.Schema
 {
     public class FileNode : Node
     {
@@ -40,7 +39,7 @@ namespace ProtoF.AST
             return string.Format("{0} msg:{1} enum:{2}", Name, Message.Count, Enum.Count);
         }
 
-        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        public override void PrintVisit(Printer printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
             printer.Print(this, sb, opt, values);
         }
@@ -55,7 +54,7 @@ namespace ProtoF.AST
             return base.ToString() + " " + Name;
         }
 
-        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        public override void PrintVisit(Printer printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
             printer.Print(this, sb, opt, values);
         }
@@ -69,7 +68,7 @@ namespace ProtoF.AST
             return base.ToString() + " " + Name;
         }
 
-        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        public override void PrintVisit(Printer printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
             printer.Print(this, sb, opt, values);
         }

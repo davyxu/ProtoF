@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ProtoF.Scanner
+namespace ProtoTool.Scanner
 {
     public class IdentifierMatcher : TokenMatcher
     {

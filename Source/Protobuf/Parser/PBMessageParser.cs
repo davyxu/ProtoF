@@ -1,10 +1,10 @@
-﻿using ProtoF.AST;
-using ProtoF.Scanner;
+﻿using ProtoTool.Schema;
+using ProtoTool.Scanner;
 using System.Collections.Generic;
 
-namespace ProtoF.Parser
+namespace ProtoTool.Protobuf
 {
-    public partial class ProtoFParser : Parser
+    public partial class ProtobufParser : Parser
     {
         void ParseMessage( FileNode filenode )
         {
@@ -42,10 +42,32 @@ namespace ProtoF.Parser
             }
 
             Consume(TokenType.RBrace); TryConsume(TokenType.EOL);
-
-            FillFieldNumber(node);
         }
 
+
+        void ParseLabel( FileNode fn, FieldNode fieldNode )
+        {            
+            switch (CurrToken.Type)
+            {
+                case TokenType.Repeated:
+                    fieldNode.PBLabel = PBFieldLabel.Repeated;
+                    fieldNode.Container = FieldContainer.Array;
+                    break;
+                case TokenType.Required:
+                    fieldNode.PBLabel = PBFieldLabel.Required;
+                    break;
+                case TokenType.Optional:
+                    fieldNode.PBLabel = PBFieldLabel.Optional;
+                    break;
+                default:
+                    {
+                        Error(_lexer.Loc, "Unknown label");
+                        return;
+                    }
+            }
+
+            Next();
+        }
 
 
         void ParseField( FileNode fn, MessageNode node )
@@ -55,29 +77,26 @@ namespace ProtoF.Parser
             // 字段的头注释
             ParseCommentAndEOL(node);
 
+            ParseLabel(fn, fieldNode);
+
             ParseFieldType(fn, node, fieldNode);
 
             ParseFieldName(node, fieldNode);
 
-            switch( CurrToken.Type )
-            {
-                case TokenType.Assign:
-                    ParseNumber(node, fieldNode);
+            ParseNumber(node, fieldNode);
 
-                    if ( CurrToken.Type == TokenType.LSqualBracket )
-                    {
-                        ParseOption(node, fieldNode);
-                    }
-
-                    break;
-                case TokenType.LSqualBracket:
-                    ParseOption(node, fieldNode);
-                    break;
+            if ( CurrToken.Type == TokenType.LSqualBracket)
+            {                
+               ParseOption(node, fieldNode);
             }
+
+            Consume(TokenType.SemiColon);
 
 
             // 尾注释
             ParseTrailingComment(fieldNode);
+
+            ParseCommentAndEOL(node);
         }
 
         void ParseNumber(MessageNode node, FieldNode fieldNode)
@@ -98,7 +117,7 @@ namespace ProtoF.Parser
                 Location loc = _lexer.Loc;
 
                 var key = FetchToken(TokenType.Identifier, "require option identify");
-                Consume(TokenType.Comma);
+                Consume(TokenType.Assign);
                 var value = CurrToken;
                 Next();
 
@@ -128,19 +147,6 @@ namespace ProtoF.Parser
 
         private void ParseFieldType(FileNode fn, MessageNode node, FieldNode fieldNode)
         {
-            // 类型
-            if (CurrToken.Type == TokenType.Array)
-            {
-                fieldNode.Container = FieldContainer.Array;
-                Next();
-                Consume(TokenType.LAngleBracket);
-            }
-            else
-            {
-                fieldNode.Container = FieldContainer.None;
-            }
-
-
             // 字段类型
             fieldNode.Type = GetFieldType();
             fieldNode.TypeName = CurrToken.Value;
@@ -155,10 +161,6 @@ namespace ProtoF.Parser
 
             Next();
 
-            if (fieldNode.Container == FieldContainer.Array)
-            {
-                Consume(TokenType.RAngleBracket);
-            }
         }
 
         FieldType GetFieldType()
@@ -203,79 +205,7 @@ namespace ProtoF.Parser
             return ret;
         }
 
-        void FillFieldNumber( MessageNode node )
-        {
-            int autoNumber = 1;
 
-            foreach( var field in node.Field )
-            {
-                if ( field.Number == 0 )
-                {
-                    field.Number = autoNumber;
-                    field.NumberIsAutoGen = true;
-                }
-                else
-                {
-                    if (field.Number < autoNumber )
-                    {
-                        Error(field.Loc, "field number < auto gen number {0}", autoNumber);
-                        continue;
-                    }
-
-                    autoNumber = field.Number;
-                }
-
-                autoNumber++;
-            }
-        }
-
-
-        List<FieldNode> _unsolvedNode = new List<FieldNode>();
-
-        void AddUnsolveNode(FieldNode n)
-        {
-            _unsolvedNode.Add(n);
-        }
-
-        // 就这节点类型
-        bool ResolveFieldType( FileNode fn, FieldNode fieldNode )
-        {
-            var symbols = _tool.Symbols.Get(fn.Package, fieldNode.TypeName);
-            if (symbols == null)
-            {   
-                return false;
-            }
-
-            var en = symbols as EnumNode;
-            if (en != null)
-            {
-                fieldNode.Type = FieldType.Enum;
-                fieldNode.TypeRef = en;
-                return true;                
-            }
-
-            var msg = symbols as MessageNode;
-            if (msg != null)
-            {
-                fieldNode.Type = FieldType.Message;
-                fieldNode.TypeRef = en;
-                return true;                      
-            }
-
-            return false;
-        }
-
-        // 解决前向引用的未知节点
-        void ResolveUnknownNode( FileNode fn )
-        {
-            foreach (FieldNode fieldNode in _unsolvedNode)
-            {
-                if ( !ResolveFieldType( fn, fieldNode ) )
-                {
-                    Error(fieldNode.Loc, "'{0}' undefined!", fieldNode.TypeName);
-                }
-                
-            }
-        }
+      
     }
 }

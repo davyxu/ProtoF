@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using ProtoF.Scanner;
-using ProtoF.Printer;
+using ProtoTool.Scanner;
 using System;
 
-namespace ProtoF.AST
+namespace ProtoTool.Schema
 {
     public enum FieldType
     {
@@ -22,11 +21,7 @@ namespace ProtoF.AST
         Bytes,
     }
 
-    public enum FieldContainer
-    {
-        None = 0,
-        Array,
-    }
+
 
 
 
@@ -47,7 +42,7 @@ namespace ProtoF.AST
             _childNode.Add(n);
         }
 
-        public virtual void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        public virtual void PrintVisit(Printer printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
             throw new NotImplementedException();
         }
@@ -85,7 +80,7 @@ namespace ProtoF.AST
             return base.ToString() + " " + Comment;
         }
 
-        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        public override void PrintVisit(Printer printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
             printer.Print(this, sb, opt, values);
         }
@@ -94,7 +89,7 @@ namespace ProtoF.AST
     // 空行
     public class EOLNode : Node
     {
-        public override void PrintVisit(IPrinter printer, StringBuilder sb, PrintOption opt, params object[] values)
+        public override void PrintVisit(Printer printer, StringBuilder sb, PrintOption opt, params object[] values)
         {
             printer.Print(this, sb, opt, values);
         }

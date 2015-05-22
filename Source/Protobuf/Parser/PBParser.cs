@@ -1,15 +1,14 @@
-﻿using ProtoF.Scanner;
-using System;
-using ProtoF.AST;
+﻿using ProtoTool.Scanner;
+using ProtoTool.Schema;
 using System.IO;
 using System.Text;
 
-namespace ProtoF.Parser
+namespace ProtoTool.Protobuf
 {
-    public partial class ProtoFParser : Parser
+    public partial class ProtobufParser : Parser
     {
-        public ProtoFParser( Tool t )
-            : base( t )
+        public ProtobufParser(Tool t)
+            : base(t)
         {
             _lexer.AddMatcher(new TokenMatcher[]{
                 new NumeralMatcher(),
@@ -19,11 +18,8 @@ namespace ProtoF.Parser
                 new CommentMatcher(),
                 new QuotedStringMatcher(),
                 
-                new KeywordMatcher(TokenType.Assign, "="),          
-                new KeywordMatcher(TokenType.LBracket, "("),
-                new KeywordMatcher(TokenType.RBracket, ")"),
+                new KeywordMatcher(TokenType.Assign, "="),                          
                 new KeywordMatcher(TokenType.Comma, ":"),
-                new KeywordMatcher(TokenType.Dot, "."),
                 new KeywordMatcher(TokenType.SemiColon, ";"),
                 new KeywordMatcher(TokenType.LSqualBracket, "["),
                 new KeywordMatcher(TokenType.RSqualBracket, "]"),
@@ -37,6 +33,10 @@ namespace ProtoF.Parser
                 new KeywordMatcher(TokenType.Import, "import"),
                 new KeywordMatcher(TokenType.Enum, "enum"),
                 new KeywordMatcher(TokenType.Message, "message"),
+
+                new KeywordMatcher(TokenType.Optional, "optional"),
+                new KeywordMatcher(TokenType.Required, "required"),
+                new KeywordMatcher(TokenType.Repeated, "repeated"),
                 
                 new KeywordMatcher(TokenType.Bool, "bool"),
                 new KeywordMatcher(TokenType.Int32, "int32"),
@@ -46,39 +46,11 @@ namespace ProtoF.Parser
                 new KeywordMatcher(TokenType.String, "string"),
                 new KeywordMatcher(TokenType.Float, "float"),
                 new KeywordMatcher(TokenType.Double, "float64"),
-                new KeywordMatcher(TokenType.Bytes, "bytes"),
-                new KeywordMatcher(TokenType.Array, "array"),
+                new KeywordMatcher(TokenType.Bytes, "bytes"),                
 
                 new IdentifierMatcher(),
                 new UnknownMatcher(),
             });
-        }
-
-
-        public FileNode StartParseFile( string filename )
-        {
-            var n = _tool.GetFileNode(filename);
-            if (n != null)
-                return n;
-
-            var inputFile = _tool.GetUsableFileName(filename);            
-
-            var data = File.ReadAllText(inputFile, Encoding.UTF8);
-
-            var parser = new ProtoFParser(_tool);
-
-            return parser.StartParse(data, Path.GetFileName(inputFile));
-        }
-
-
-        public FileNode StartParse(string source, string srcName)
-        {
-            _unsolvedNode.Clear();
-            _lexer.Start(source, srcName);
-
-            Next();
-
-            return ParseFile(srcName);
         }
     }
 

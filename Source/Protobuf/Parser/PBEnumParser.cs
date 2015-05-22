@@ -1,9 +1,9 @@
-﻿using ProtoF.AST;
-using ProtoF.Scanner;
+﻿using ProtoTool.Schema;
+using ProtoTool.Scanner;
 
-namespace ProtoF.Parser
+namespace ProtoTool.Protobuf
 {
-    public partial class ProtoFParser : Parser
+    public partial class ProtobufParser : Parser
     {
         void ParseEnum(FileNode filenode )
         {
@@ -41,51 +41,21 @@ namespace ProtoF.Parser
                
                 CheckDuplicate(node, _lexer.Loc, valueNode.Name);
 
-                if ( TryConsume(TokenType.Assign) )
-                {
-                    valueNode.Number = FetchToken(TokenType.Number, "require enum value").ToInteger();
-                }
-                else
-                {
-                    valueNode.NumberIsAutoGen = true;
-                }
+                Consume(TokenType.Assign);                
+                valueNode.Number = FetchToken(TokenType.Number, "require enum value").ToInteger();
 
+                Consume(TokenType.SemiColon);
                 
                 node.AddValue(valueNode);
 
 
                 // 尾注释
-                ParseTrailingComment(valueNode);                
+                ParseTrailingComment(valueNode);
+
+                ParseCommentAndEOL(valueNode);
             }
 
             Consume(TokenType.RBrace); TryConsume(TokenType.EOL);
-
-            FillEnumNumber(node);
-        }
-
-        void FillEnumNumber(EnumNode node)
-        {
-            int autoNumber = 0;
-
-            foreach (var en in node.Value)
-            {
-                if (en.NumberIsAutoGen)
-                {
-                    en.Number = autoNumber;
-                }
-                else
-                {
-                    if (en.Number < autoNumber)
-                    {
-                        Error(en.Loc, "enum number < auto gen number {0}", autoNumber);
-                        continue;
-                    }
-
-                    autoNumber = en.Number;
-                }
-
-                autoNumber++;
-            }
         }
 
     }

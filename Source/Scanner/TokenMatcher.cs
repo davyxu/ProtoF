@@ -1,6 +1,6 @@
 ﻿
 
-namespace ProtoF.Scanner
+namespace ProtoTool.Scanner
 {
     public abstract class TokenMatcher
     {

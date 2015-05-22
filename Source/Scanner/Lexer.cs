@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ProtoF.Scanner
+namespace ProtoTool.Scanner
 {
     public class Location
     {

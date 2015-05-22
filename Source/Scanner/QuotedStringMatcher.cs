@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-namespace ProtoF.Scanner
+namespace ProtoTool.Scanner
 {
     public class QuotedStringMatcher : TokenMatcher
     {
