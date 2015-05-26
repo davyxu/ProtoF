@@ -21,11 +21,17 @@ namespace ProtoTool.Protobuf
             sb.AppendFormat("message {0}\n", node.Name);
             sb.Append("{\n");
 
-            var maxNameLength = node.Field.Select(x => x.Name.Length).Max();
-            var maxTypeLength = node.Field.Select(x => x.TypeName.Length).Max();
-
-
             var subopt = new PrintOption(opt);
+
+
+            int maxNameLength = 0;
+            int maxTypeLength = 0;
+
+            if ( node.Field.Count > 0 )
+            {
+                maxNameLength = node.Field.Select(x => x.Name.Length).Max();
+                maxTypeLength = node.Field.Select(x => x.TypeName.Length).Max();
+            }
 
             foreach (var n in node.Child)
             {
@@ -39,9 +45,9 @@ namespace ProtoTool.Protobuf
 
         public override void Print(EnumValueNode node, StringBuilder sb, PrintOption opt, params object[] values)
         {
+            sb.Append(opt.MakeIndentSpace());
 
             var maxNameLength = (int)values[0];
-
 
             var nameSpace = " ".PadLeft(maxNameLength - node.Name.Length + 1);
 
@@ -92,8 +98,11 @@ namespace ProtoTool.Protobuf
 
             // 序号
             {
-                sb.AppendFormat("= {0} ", node.Number);             
+                sb.AppendFormat("= {0}", node.Number);             
             }
+
+
+            
 
 
             // Option
@@ -107,7 +116,7 @@ namespace ProtoTool.Protobuf
                     sb.AppendFormat("default={0}", node.DefaultValue);
                 }
 
-                sb.Append("] ");                    
+                sb.Append("]");                    
             }
 
             sb.Append(";");
@@ -117,7 +126,7 @@ namespace ProtoTool.Protobuf
             // 注释
             if (!string.IsNullOrEmpty(node.TrailingComment))
             {
-                sb.AppendFormat("//{0}", node.TrailingComment);
+                sb.AppendFormat(" //{0}", node.TrailingComment);
             }
 
             sb.Append("\n");

@@ -11,11 +11,16 @@ namespace ProtoTool.ProtoF
             sb.AppendFormat("message {0}\n", node.Name);
             sb.Append("{\n");
 
-            var maxNameLength = node.Field.Select(x => x.Name.Length).Max();
-            var maxTypeLength = node.Field.Select(x => x.CompleteTypeName.Length).Max();
-
-
             var subopt = new PrintOption(opt);
+
+            int maxNameLength = 0;
+            int maxTypeLength = 0;
+
+            if (node.Field.Count > 0)
+            {
+                maxNameLength = node.Field.Select(x => x.Name.Length).Max();
+                maxTypeLength = node.Field.Select(x => x.CompleteTypeName.Length).Max();
+            }
 
             foreach (var n in node.Child)
             {

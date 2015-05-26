@@ -138,13 +138,5 @@ namespace ProtoTool.Scanner
         {
             return Index + offset >= _source.Length;
         }
-
-        public void Error(string fmt, params object[] objs)
-        {
-            string str = Loc + " " + string.Format(fmt, objs);
-            Console.WriteLine(str);
-            throw new Exception(str);
-        }
-
     }
 }

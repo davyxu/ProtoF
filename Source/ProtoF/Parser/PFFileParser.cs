@@ -16,14 +16,14 @@ namespace ProtoTool.ProtoF
 
                 if ( !string.IsNullOrEmpty( filenode.Package ))
                 {
-                    Error(_lexer.Loc, "package already specified");
+                    Reporter.Error(ErrorType.Parse, _lexer.Loc, "package already specified");
                 }
 
                 node.Name = FetchToken(TokenType.Identifier, "require package name").Value;
 
                 if ( filenode.Package == node.Name )
                 {
-                    Error(_lexer.Loc, "package name duplicated");
+                    Reporter.Error(ErrorType.Parse, _lexer.Loc, "package name duplicated");
                 }
 
                 Consume(TokenType.EOL);
@@ -35,20 +35,22 @@ namespace ProtoTool.ProtoF
 
         void ParseImport( FileNode filenode )
         {
-            var node = new ImportNode();
+            
 
             while (TryConsume(TokenType.Import))
             {
+                var node = new ImportNode();
+
                 node.Name = FetchToken(TokenType.QuotedString, "require file name").Value;
                 
                 if (filenode.Import.Exists(x => x.Name == node.Name))
                 {
-                    Error(_lexer.Loc, "duplicate import filename");
+                    Reporter.Error(ErrorType.Parse, _lexer.Loc, "duplicate import filename");
                 }
 
                 if ( filenode.Name == node.Name )
                 {
-                    Error(_lexer.Loc, "can not import self");
+                    Reporter.Error(ErrorType.Parse, _lexer.Loc, "can not import self");
                 }
 
                 var parser = new ProtoFParser(_tool);
@@ -62,9 +64,8 @@ namespace ProtoTool.ProtoF
         }
 
 
-        public override FileNode ParseFile(string name)
-        {
-            var node = new FileNode();
+        public override void ParseFile(FileNode node, string name)
+        {        
             node.Name = name;
             _tool.AddFileNode(node);
 
@@ -91,14 +92,14 @@ namespace ProtoTool.ProtoF
                         break;
                     case TokenType.Enum:
                         {
-                            ParseEnum(node);
+                            ParseEnum(node, null);
                         }
                         break;
                     case TokenType.EOF:
                         break;
                     default:
                         {
-                            Error(string.Format("unexpect token {0}", _lexer.CurrChar));
+                            Reporter.Error(ErrorType.Parse, string.Format("unexpect token {0}", _lexer.CurrChar));
                         }
                         break;
                 }
@@ -107,8 +108,6 @@ namespace ProtoTool.ProtoF
             
 
             ResolveUnknownNode(node);
-
-            return node;
         }
 
     }

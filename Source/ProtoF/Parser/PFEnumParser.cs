@@ -5,7 +5,7 @@ namespace ProtoTool.ProtoF
 {
     public partial class ProtoFParser : Parser
     {
-        void ParseEnum(FileNode filenode )
+        void ParseEnum(FileNode filenode, MessageNode msgNode)
         {
             var node = new EnumNode();
             
@@ -17,11 +17,18 @@ namespace ProtoTool.ProtoF
 
             node.Name = FetchToken(TokenType.Identifier, "require enum type name").Value;
 
-            CheckDuplicate(node.Loc, filenode.Package, node.Name);
+            _tool.CheckDuplicate(node.Loc, filenode.Package, node.Name);
 
-            filenode.AddEnum(node);
+            if (_fileNode.IsTopScope())
+            {
+                filenode.AddEnum(node);
+            }
+            else
+            {
+                msgNode.Add(node);
+            }
 
-            AddSymbol(filenode.Package, node.Name, node);
+            _fileNode.AddSymbol(filenode.Package, node.Name, node);
 
             TryConsume(TokenType.EOL);
 
@@ -79,7 +86,7 @@ namespace ProtoTool.ProtoF
                 {
                     if (en.Number < autoNumber)
                     {
-                        Error(en.Loc, "enum number < auto gen number {0}", autoNumber);
+                        Reporter.Error( ErrorType.Parse, en.Loc, "enum number < auto gen number {0}", autoNumber);
                         continue;
                     }
 

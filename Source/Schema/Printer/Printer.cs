@@ -133,6 +133,7 @@ namespace ProtoTool.Schema
 
             var maxNameLength = (int)values[0];
 
+            sb.Append(opt.MakeIndentSpace());
 
             var nameSpace = " ".PadLeft(maxNameLength - node.Name.Length + 1);
 
@@ -157,10 +158,19 @@ namespace ProtoTool.Schema
 
         public virtual void Print(EnumNode node, StringBuilder sb, PrintOption opt, params object[] values)
         {
+            sb.Append(opt.MakeIndentSpace());
+
             sb.AppendFormat("enum {0}\n", node.Name);
+            sb.Append(opt.MakeIndentSpace());
             sb.Append("{\n");
 
-            var maxNameLength = node.Value.Select(x => x.Name.Length).Max();
+            int maxNameLength = 0;
+
+            if ( node.Value.Count > 0 )
+            {
+                maxNameLength = node.Value.Select(x => x.Name.Length).Max();
+            }
+            
 
             var subopt = new PrintOption(opt);
 
@@ -169,6 +179,7 @@ namespace ProtoTool.Schema
                 n.PrintVisit(this, sb, subopt, maxNameLength);
             }
 
+            sb.Append(opt.MakeIndentSpace());
             sb.Append("}\n");
         }
     }

@@ -16,14 +16,19 @@ namespace ProtoTool.Schema
         }
 
         // 就这节点类型
-        protected bool ResolveFieldType(FileNode fn, FieldNode fieldNode)
+        protected bool ResolveFieldType(string packageName, FieldNode fieldNode)
         {
-            var symbols = _tool.Symbols.Get(fn.Package, fieldNode.TypeName);
+            var symbols = _fileNode.ScopeSymbols.Get(packageName, fieldNode.TypeName);
             if (symbols == null)
             {
                 return false;
             }
 
+            return MakeFieldValid(symbols, fieldNode);
+        }
+
+        bool MakeFieldValid( Node symbols, FieldNode fieldNode )
+        {
             var en = symbols as EnumNode;
             if (en != null)
             {
@@ -48,9 +53,16 @@ namespace ProtoTool.Schema
         {
             foreach (FieldNode fieldNode in _unsolvedNode)
             {
-                if (!ResolveFieldType(fn, fieldNode))
+                var symbols = _tool.LookUpSymbols(fn.Package, fieldNode.TypeName);
+                if (symbols == null)
                 {
-                    Error(fieldNode.Loc, "'{0}' undefined!", fieldNode.TypeName);
+                    Reporter.Error(ErrorType.Parse, fieldNode.Loc, "'{0}' undefined!", fieldNode.TypeName);
+                    continue;
+                }
+
+                if (!MakeFieldValid(symbols, fieldNode))
+                {
+                    Reporter.Error(ErrorType.Parse, fieldNode.Loc, "'{0}' resolve type error!", fieldNode.TypeName);                    
                 }
 
             }

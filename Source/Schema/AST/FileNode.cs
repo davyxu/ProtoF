@@ -11,6 +11,8 @@ namespace ProtoTool.Schema
         public List<MessageNode> Message = new List<MessageNode>();
         public List<EnumNode> Enum = new List<EnumNode>();
 
+        
+
         public void AddMessage(MessageNode n)
         {
             Child.Add(n);
@@ -43,8 +45,54 @@ namespace ProtoTool.Schema
         {
             printer.Print(this, sb, opt, values);
         }
+        
 
+        Stack<SymbolTable> _symbolStack = new Stack<SymbolTable>();
 
+        public void AddSymbol(string packageName, string name, Node n)
+        {
+            _symbolStack.Peek().Add(packageName, name, n);
+        }
+
+        public SymbolTable ScopeSymbols
+        {
+            get { return _symbolStack.Peek(); }
+        }
+
+        SymbolTable _staticSymbols;
+
+        public SymbolTable StaticSymbols
+        {
+            get { 
+
+                if ( _symbolStack.Count > 0 )
+                {
+                    return ScopeSymbols;
+                }
+
+                return _staticSymbols; 
+            }
+        }
+
+        public bool IsTopScope()
+        {
+            return _symbolStack.Count == 1;
+        }
+
+        public void EnterScope()
+        {
+            _symbolStack.Push(new SymbolTable());
+        }
+
+        public void LeaveScope()
+        {
+            if ( IsTopScope() )
+            {
+                _staticSymbols = ScopeSymbols;
+            }
+
+            _symbolStack.Pop();
+        }
     }
 
     public class PackageNode : Node

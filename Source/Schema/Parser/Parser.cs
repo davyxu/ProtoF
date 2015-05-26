@@ -3,13 +3,15 @@ using System;
 using ProtoTool.Schema;
 using System.Text;
 using System.IO;
+using System.Collections.Generic;
 
 namespace ProtoTool.Schema
 {
     public partial class Parser
     {
         protected Lexer _lexer = new Lexer();
-        
+
+        protected FileNode _fileNode;
 
         protected Tool _tool;
 
@@ -44,7 +46,7 @@ namespace ProtoTool.Schema
         {
             if (CurrToken.Type != t)
             {
-                Error(_lexer.Loc, fmt, objs);
+                Reporter.Error( ErrorType.Parse,_lexer.Loc, fmt, objs);
                 return _err;
             }
 
@@ -59,7 +61,7 @@ namespace ProtoTool.Schema
         {
             if (CurrToken.Type != t)
             {
-                Error(_lexer.Loc, "expect token: {0}", t.ToString());
+                Reporter.Error( ErrorType.Parse, _lexer.Loc, "expect token: {0}", t.ToString());
             }
 
             Next();
@@ -76,27 +78,7 @@ namespace ProtoTool.Schema
             return false;
         }
 
-        public void Error(string fmt, params object[] objs)
-        {
-            Error(null, fmt, objs);
-        }
-
-        public void Error(Location loc, string fmt, params object[] objs)
-        {
-            string str;
-            if (loc != null)
-            {
-                str = loc + " " + string.Format(fmt, objs);
-            }
-            else
-            {
-                str = string.Format(fmt, objs);
-            }
-
-            Console.WriteLine(str);
-
-            throw new Exception(str);
-        }
+      
 
 
         public FileNode StartParseFile(string filename)
@@ -107,9 +89,16 @@ namespace ProtoTool.Schema
 
             var inputFile = _tool.GetUsableFileName(filename);
 
-            var data = File.ReadAllText(inputFile, Encoding.UTF8);
+            try
+            {
+                var data = File.ReadAllText(inputFile, Encoding.UTF8);
 
-            return StartParse(data, Path.GetFileName(inputFile));
+                return StartParse(data, Path.GetFileName(inputFile));
+            }
+            catch( FileNotFoundException e )
+            {
+                throw new ProtoExceptioin(ErrorType.Parse, e.Message);
+            }
         }
 
 
@@ -120,34 +109,33 @@ namespace ProtoTool.Schema
 
             Next();
 
-            return ParseFile(srcName);
+            _fileNode = new FileNode();
+
+            _fileNode.EnterScope();
+
+            ParseFile(_fileNode, srcName);
+
+            _fileNode.LeaveScope();
+
+            return _fileNode;
         }
 
-        public virtual FileNode ParseFile( string srcName )
+        public virtual void ParseFile(FileNode node, string srcName)
         {
             throw new NotImplementedException();
         }
 
 
-        protected void AddSymbol(string packageName, string name, Node n)
-        {
-            _tool.Symbols.Add(packageName, name, n);
-        }
+
+        
 
 
-        protected void CheckDuplicate(Location loc, string packageName, string name)
-        {
-            if (_tool.Symbols.Get(packageName, name) != null)
-            {
-                Error(loc, "{0} already defined in {1} package", name, packageName);
-            }
-        }
 
         protected void CheckDuplicate(ContainerNode n, Location loc, string name)
         {
             if (n.Contain(name))
             {
-                Error(loc, "{0} already defined", name);
+                Reporter.Error( ErrorType.Parse, loc, "{0} already defined", name);
             }
         }
     }

@@ -18,11 +18,11 @@ namespace ProtoTool.Protobuf
 
             node.Name = FetchToken(TokenType.Identifier, "require message type name").Value;
 
-            CheckDuplicate(node.Loc, filenode.Package, node.Name);
+            _tool.CheckDuplicate(node.Loc, filenode.Package, node.Name);
 
             filenode.AddMessage(node);
 
-            AddSymbol(filenode.Package, node.Name, node);
+            _fileNode.AddSymbol(filenode.Package, node.Name, node);
 
 
             TryConsume(TokenType.EOL);
@@ -32,11 +32,20 @@ namespace ProtoTool.Protobuf
 
             while (CurrToken.Type != TokenType.RBrace)
             {
+                ParseCommentAndEOL(node);
+
                 // 内嵌枚举
                 if (CurrToken.Type == TokenType.Enum)
                 {
-                    ParseEnum(filenode);                   
+                    _fileNode.EnterScope();
+                    ParseEnum(filenode, node);
+                    _fileNode.LeaveScope();
                 }
+
+                ParseCommentAndEOL(node);
+
+                if (CurrToken.Type == TokenType.RBrace)
+                    break;
 
                 ParseField(filenode, node);
             }
@@ -59,9 +68,14 @@ namespace ProtoTool.Protobuf
                 case TokenType.Optional:
                     fieldNode.PBLabel = PBFieldLabel.Optional;
                     break;
+                case TokenType.Message:
+                    {
+                        Reporter.Error( ErrorType.Parse, _lexer.Loc, "DO NOT SUPPORT nested message type");
+                    }
+                    break;
                 default:
                     {
-                        Error(_lexer.Loc, "Unknown label");
+                        Reporter.Error( ErrorType.Parse, _lexer.Loc, "Unknown label");
                         return;
                     }
             }
@@ -127,7 +141,7 @@ namespace ProtoTool.Protobuf
                 }
                 else
                 {
-                    Error(loc, "unknown field option '{0}'", key.Value);
+                    Reporter.Error( ErrorType.Parse, loc, "unknown field option '{0}'", key.Value);
                 }
             }
 
@@ -147,11 +161,26 @@ namespace ProtoTool.Protobuf
 
         private void ParseFieldType(FileNode fn, MessageNode node, FieldNode fieldNode)
         {
+            string packageName = fn.Package;
             // 字段类型
             fieldNode.Type = GetFieldType();
             fieldNode.TypeName = CurrToken.Value;
 
-            if (fieldNode.Type == FieldType.None && !ResolveFieldType(fn, fieldNode))
+            var maybePackageName = CurrToken.Value;
+
+
+            Next();
+
+            if ( CurrToken.Type == TokenType.Dot )
+            {
+                Next();
+                fieldNode.TypeName = CurrToken.Value;
+                packageName = maybePackageName;
+
+                Next();
+            }
+
+            if (fieldNode.Type == FieldType.None && !ResolveFieldType(packageName, fieldNode))
             {
                 AddUnsolveNode(fieldNode);
             }
@@ -159,7 +188,7 @@ namespace ProtoTool.Protobuf
             node.AddField(fieldNode);
 
 
-            Next();
+            
 
         }
 

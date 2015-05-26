@@ -18,11 +18,11 @@ namespace ProtoTool.ProtoF
 
             node.Name = FetchToken(TokenType.Identifier, "require message type name").Value;
 
-            CheckDuplicate(node.Loc, filenode.Package, node.Name);
+            _tool.CheckDuplicate(node.Loc, filenode.Package, node.Name);
 
             filenode.AddMessage(node);
 
-            AddSymbol(filenode.Package, node.Name, node);
+            _fileNode.AddSymbol(filenode.Package, node.Name, node);
 
 
             TryConsume(TokenType.EOL);
@@ -32,11 +32,20 @@ namespace ProtoTool.ProtoF
 
             while (CurrToken.Type != TokenType.RBrace)
             {
+                ParseCommentAndEOL(node);
+
                 // 内嵌枚举
                 if (CurrToken.Type == TokenType.Enum)
                 {
-                    ParseEnum(filenode);                   
+                    _fileNode.EnterScope();
+                    ParseEnum(filenode, node );
+                    _fileNode.LeaveScope();
                 }
+
+                ParseCommentAndEOL(node);
+
+                if (CurrToken.Type == TokenType.RBrace)
+                    break;
 
                 ParseField(filenode, node);
             }
@@ -111,7 +120,7 @@ namespace ProtoTool.ProtoF
                 }
                 else
                 {
-                    Error(loc, "unknown field option '{0}'", key.Value);
+                    Reporter.Error( ErrorType.Parse, loc, "unknown field option '{0}'", key.Value);
                 }
             }
 
@@ -149,7 +158,7 @@ namespace ProtoTool.ProtoF
             fieldNode.Type = GetFieldType();
             fieldNode.TypeName = CurrToken.Value;
 
-            if (fieldNode.Type == FieldType.None && !ResolveFieldType(fn, fieldNode))
+            if (fieldNode.Type == FieldType.None && !ResolveFieldType(fn.Package, fieldNode))
             {
                 AddUnsolveNode(fieldNode);
             }
@@ -222,7 +231,7 @@ namespace ProtoTool.ProtoF
                 {
                     if (field.Number < autoNumber )
                     {
-                        Error(field.Loc, "field number < auto gen number {0}", autoNumber);
+                        Reporter.Error(ErrorType.Parse, field.Loc, "field number < auto gen number {0}", autoNumber);
                         continue;
                     }
 

@@ -1,6 +1,4 @@
-﻿using System.Text;
-using System.IO;
-using CommandLine.Text;
+﻿using CommandLine.Text;
 using System;
 using ProtoTool.Schema;
 using ProtoTool.ProtoF;
@@ -12,9 +10,6 @@ namespace ProtoTool
     class Program
     {
         private static readonly HeadingInfo HeadingInfo = new HeadingInfo("ProtoF", "1.0");
-
-
-
 
         static void Main(string[] args)
         {
@@ -57,7 +52,29 @@ namespace ProtoTool
                 throw new Exception("Unknown method");
             }
 
-            Tool.Convertor(options.InputFile, options.OutputFile, parser, printer);          
+#if !DEBUG
+            try
+            {
+#endif
+                Tool.Convertor(options.InputFile, options.OutputFile, parser, printer);
+                return;
+
+#if !DEBUG
+            }
+            catch (ProtoExceptioin e)
+            {
+                Console.WriteLine(e.Message.ToString());
+            }
+            catch( Exception e )
+            {
+                Console.WriteLine(e.ToString());
+            }
+
+            Console.Read();
+
+            Environment.Exit(-1);     
+#endif
+
         }
     }
 }

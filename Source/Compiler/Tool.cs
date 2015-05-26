@@ -10,12 +10,12 @@ namespace ProtoTool
     {
         public string SearchPath { get; set; }
 
-        Dictionary<string, FileNode> _fileNode = new Dictionary<string, FileNode>();
+        Dictionary<string, FileNode> _fileMap = new Dictionary<string, FileNode>();
 
         public FileNode GetFileNode( string name )
         {
             FileNode n;
-            if (_fileNode.TryGetValue(name, out n))
+            if (_fileMap.TryGetValue(name, out n))
                 return n;
 
             return null;
@@ -23,8 +23,38 @@ namespace ProtoTool
 
         public void AddFileNode( FileNode n )
         {
-            _fileNode.Add(n.Name, n);
+            _fileMap.Add(n.Name, n);
         }
+
+
+
+
+        public void CheckDuplicate(Location loc, string packageName, string name)
+        {
+            foreach (var v in _fileMap)
+            {
+                if (v.Value.StaticSymbols.Get(packageName, name) != null)
+                {
+                    Reporter.Error( ErrorType.Parse,loc, "{0} already defined in {1} package", name, packageName);
+                }
+            }
+        }
+
+        public Node LookUpSymbols( string packageName, string name )
+        {
+            foreach (var v in _fileMap)
+            {
+                var symbols = v.Value.StaticSymbols.Get(packageName, name);
+                if ( symbols != null)
+                {
+                    return symbols;
+                }
+            }
+
+            return null;
+        }
+
+
 
         public string GetUsableFileName(string filename)
         {
@@ -34,16 +64,8 @@ namespace ProtoTool
             return Path.Combine(SearchPath, filename);
         }
 
-
-        SymbolTable _symbols = new SymbolTable();
-
-        public SymbolTable Symbols
-        {
-            get { return _symbols; }
-        }
-
         public static void Convertor(string inputFileName, string outputFileName, Parser parser, Printer printer)
-        {
+        {            
             var file = parser.StartParseFile(inputFileName);
 
             var sb = new StringBuilder();
