@@ -17,6 +17,7 @@ namespace ProtoTool.Scanner
         Assign,         // =        
         Comma,          // ,
         Dot,            // .
+        Sub,            // -
         SemiColon,      // ;
         LBracket,       // (
         RBracket,       // )

@@ -35,14 +35,14 @@ namespace ProtoTool.ProtoF
                 ParseCommentAndEOL(node);
 
                 // 内嵌枚举
-                if (CurrToken.Type == TokenType.Enum)
+                while (CurrToken.Type == TokenType.Enum)
                 {
                     _fileNode.EnterScope();
                     ParseEnum(filenode, node );
                     _fileNode.LeaveScope();
-                }
 
-                ParseCommentAndEOL(node);
+                    ParseCommentAndEOL(node);
+                }
 
                 if (CurrToken.Type == TokenType.RBrace)
                     break;
@@ -111,12 +111,11 @@ namespace ProtoTool.ProtoF
 
                 var key = FetchToken(TokenType.Identifier, "require option identify");
                 Consume(TokenType.Comma);
-                var value = CurrToken;
-                Next();
 
                 if ( key.Value == "default" )
                 {
-                    fieldNode.DefaultValue = value.Value;
+                    fieldNode.DefaultValue = ReadDefaultValue(fieldNode);
+                    Next();
                 }
                 else
                 {
@@ -174,47 +173,6 @@ namespace ProtoTool.ProtoF
             }
         }
 
-        FieldType GetFieldType()
-        {
-            FieldType ret = FieldType.None;
-
-            switch (CurrToken.Type)
-            {
-                case TokenType.Bool:
-                    ret = FieldType.Bool;
-                    break;
-                case TokenType.Int32:
-                    ret = FieldType.Int32;
-                    break;
-                case TokenType.UInt32:
-                    ret = FieldType.UInt32;
-                    break;
-                case TokenType.UInt64:
-                    ret = FieldType.UInt64;
-                    break;
-                case TokenType.Int64:
-                    ret = FieldType.Int64;
-                    break;
-                case TokenType.String:
-                    ret = FieldType.String;
-                    break;
-                case TokenType.Float:
-                    ret = FieldType.Float;
-                    break;
-                case TokenType.Double:
-                    ret = FieldType.Double;
-                    break;
-                case TokenType.Bytes:
-                    ret = FieldType.Bytes;
-                    break;
-                default:
-                    return FieldType.None;
-                    
-            }
-
-
-            return ret;
-        }
 
         void FillFieldNumber( MessageNode node )
         {

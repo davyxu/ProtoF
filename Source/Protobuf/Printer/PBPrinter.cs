@@ -45,13 +45,11 @@ namespace ProtoTool.Protobuf
 
         public override void Print(EnumValueNode node, StringBuilder sb, PrintOption opt, params object[] values)
         {
-            sb.Append(opt.MakeIndentSpace());
-
             var maxNameLength = (int)values[0];
 
-            var nameSpace = " ".PadLeft(maxNameLength - node.Name.Length + 1);
+            sb.Append(opt.MakeIndentSpace());
 
-            sb.AppendFormat("{0}{1}{2}", opt.MakeIndentSpace(), node.Name, nameSpace);
+            sb.Append(node.Name.PadRight(maxNameLength));
 
             if ((!node.NumberIsAutoGen || opt.ShowAllEnumNumber))
             {
@@ -80,19 +78,17 @@ namespace ProtoTool.Protobuf
             sb.Append(opt.MakeIndentSpace());
 
             {                
-                sb.AppendFormat("{0} ", node.PBLabel.ToString().ToLower());
+                sb.AppendFormat("{0} ", node.PBLabel.ToString().ToLower());                
             }
 
             // 类型
-            {
-                var space = " ".PadLeft(maxTypeLength - node.TypeName.Length + 1);
-                sb.AppendFormat("{0}{1}", node.TypeName, space);
+            {                
+                sb.Append(node.TypeName.PadRight(node.TypeName.Length + 1));
             }
 
             // 字段名
             {
-                var space = " ".PadLeft(maxNameLength - node.Name.Length + 1);
-                sb.AppendFormat("{0}{1}",  node.Name, space);
+                sb.Append(node.TypeName.PadRight(node.Name.Length + 1));                
             }
 
 
@@ -100,10 +96,6 @@ namespace ProtoTool.Protobuf
             {
                 sb.AppendFormat("= {0}", node.Number);             
             }
-
-
-            
-
 
             // Option
             if (node.HasOption)
@@ -121,7 +113,6 @@ namespace ProtoTool.Protobuf
 
             sb.Append(";");
  
-
 
             // 注释
             if (!string.IsNullOrEmpty(node.TrailingComment))

@@ -32,7 +32,7 @@ namespace ProtoTool.Schema
             if (Indent == 0)
                 return string.Empty;
 
-            return "\t".PadLeft(Indent);
+            return "".PadRight(Indent,'\t');
         }
     }
 
@@ -82,14 +82,12 @@ namespace ProtoTool.Schema
 
             // 类型
             {
-                var space = " ".PadLeft(maxTypeLength - node.CompleteTypeName.Length + 1);
-                sb.AppendFormat("{0}{1}", node.CompleteTypeName, space);
+                sb.Append(node.CompleteTypeName.PadRight(maxTypeLength + 1));
             }
 
             // 字段名
             {
-                var space = " ".PadLeft(maxNameLength - node.Name.Length + 1);
-                sb.AppendFormat("{0}{1}", node.Name, space);
+                sb.Append(node.Name.PadRight(maxNameLength + 1));                
             }
 
 
@@ -135,9 +133,7 @@ namespace ProtoTool.Schema
 
             sb.Append(opt.MakeIndentSpace());
 
-            var nameSpace = " ".PadLeft(maxNameLength - node.Name.Length + 1);
-
-            sb.AppendFormat("{0}{1}{2}", opt.MakeIndentSpace(), node.Name, nameSpace);
+            sb.Append(node.Name.PadRight(maxNameLength));
 
             if ((!node.NumberIsAutoGen || opt.ShowAllEnumNumber))
             {
@@ -145,7 +141,7 @@ namespace ProtoTool.Schema
                 sb.AppendFormat(" = {0}", node.Number);
             }
 
-            var commentSpace = " ".PadLeft(3 - node.Number.ToString().Length);
+            var commentSpace = " ".PadLeft(Math.Max( 3 - node.Number.ToString().Length, 1));
             sb.Append(commentSpace);
 
             if (!string.IsNullOrEmpty(node.TrailingComment))

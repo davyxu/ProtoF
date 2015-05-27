@@ -21,6 +21,7 @@ namespace ProtoTool.Protobuf
                 new KeywordMatcher(TokenType.Assign, "="),                          
                 new KeywordMatcher(TokenType.Comma, ":"),
                 new KeywordMatcher(TokenType.Dot, "."),
+                new KeywordMatcher(TokenType.Sub, "-"),
                 new KeywordMatcher(TokenType.SemiColon, ";"),
                 new KeywordMatcher(TokenType.LSqualBracket, "["),
                 new KeywordMatcher(TokenType.RSqualBracket, "]"),

@@ -3,6 +3,7 @@ using System;
 using ProtoTool.Schema;
 using ProtoTool.ProtoF;
 using ProtoTool.Protobuf;
+using ProtoTool.Scanner;
 
 namespace ProtoTool
 {
@@ -10,6 +11,23 @@ namespace ProtoTool
     class Program
     {
         private static readonly HeadingInfo HeadingInfo = new HeadingInfo("ProtoF", "1.0");
+
+        static void UnitTest( )
+        {
+            var lex = new Lexer();
+
+            lex.AddMatcher(new TokenMatcher[]{
+                new NumeralMatcher(),
+                
+                new LineEndMatcher(),
+                new WhitespaceMatcher().Ignore(),
+                new CommentMatcher(),                
+                new UnknownMatcher(),
+            });
+            
+            lex.Start("0x837f", "A");
+            lex.Read();
+        }
 
         static void Main(string[] args)
         {

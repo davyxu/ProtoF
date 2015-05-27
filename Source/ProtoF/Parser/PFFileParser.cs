@@ -99,7 +99,7 @@ namespace ProtoTool.ProtoF
                         break;
                     default:
                         {
-                            Reporter.Error(ErrorType.Parse, string.Format("unexpect token {0}", _lexer.CurrChar));
+                            Reporter.Error(ErrorType.Parse, _lexer.Loc, string.Format("unexpect token {0}", _lexer.CurrChar));
                         }
                         break;
                 }

@@ -44,7 +44,7 @@ namespace ProtoTool.Scanner
                                     }
                                     break;
                                 default:
-                                    Reporter.Error(ErrorType.Lexer, "invalid escape sequence");
+                                    Reporter.Error(ErrorType.Lexer, lex.Loc, "invalid escape sequence");
                                     break;
                             }
 
@@ -53,7 +53,7 @@ namespace ProtoTool.Scanner
                         break;
                     case '\r':
                     case '\n':
-                        Reporter.Error(ErrorType.Lexer, "unfinished string");                        
+                        Reporter.Error(ErrorType.Lexer, lex.Loc, "unfinished string");                        
                         break;                        
                 }
 

@@ -20,7 +20,9 @@ namespace ProtoTool.ProtoF
                 new QuotedStringMatcher(),
                 
                 new KeywordMatcher(TokenType.Assign, "="),                          
-                new KeywordMatcher(TokenType.Comma, ":"),                
+                new KeywordMatcher(TokenType.Comma, ":"),
+                new KeywordMatcher(TokenType.Dot, "."),
+                new KeywordMatcher(TokenType.Sub, "-"),
                 new KeywordMatcher(TokenType.LSqualBracket, "["),
                 new KeywordMatcher(TokenType.RSqualBracket, "]"),
                 new KeywordMatcher(TokenType.LBrace, "{"),

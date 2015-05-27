@@ -115,6 +115,7 @@
     <Compile Include="Compiler\Program.cs" />
     <Compile Include="Schema\AST\SymbolTable.cs" />
     <Compile Include="Schema\Parser\ResolveSymbol.cs" />
+    <Compile Include="Schema\Parser\Shared.cs" />
     <Compile Include="Schema\Printer\Printer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtoF\Printer\PFPrinter.cs" />
