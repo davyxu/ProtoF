@@ -15,7 +15,7 @@ namespace ProtoTool.Schema
 
         protected Tool _tool;
 
-        public Parser( Tool t )
+        public virtual void Init( Tool t )
         {
             _tool = t;
         }
@@ -124,12 +124,6 @@ namespace ProtoTool.Schema
         {
             throw new NotImplementedException();
         }
-
-
-
-        
-
-
 
         protected void CheckDuplicate(ContainerNode n, Location loc, string name)
         {

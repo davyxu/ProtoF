@@ -1,82 +1,68 @@
-﻿using CommandLine.Text;
-using System;
+﻿using System;
 using ProtoTool.Schema;
-using ProtoTool.ProtoF;
-using ProtoTool.Protobuf;
 using ProtoTool.Scanner;
+using ProtoTool.Plugin;
+using System.Text;
 
 namespace ProtoTool
 {
 
-    class Program
+    partial class Program
     {
-        private static readonly HeadingInfo HeadingInfo = new HeadingInfo("ProtoF", "1.0");
-
-        static void UnitTest( )
+        static void PrintHelp( )
         {
-            var lex = new Lexer();
-
-            lex.AddMatcher(new TokenMatcher[]{
-                new NumeralMatcher(),
-                
-                new LineEndMatcher(),
-                new WhitespaceMatcher().Ignore(),
-                new CommentMatcher(),                
-                new UnknownMatcher(),
-            });
-            
-            lex.Start("0x837f", "A");
-            lex.Read();
+            var sb = new StringBuilder();
+            sb.AppendLine("Usage: ProtoTool [OPTION]");
+            sb.AppendLine("-s   proto file search path");
+            sb.AppendLine("-i   input file name");
+            sb.AppendLine("-o   output file name");
+            sb.AppendLine("-conv   convert proto to proto format, like pb2pf, pb2pb, etc...");
         }
 
         static void Main(string[] args)
         {
-            var options = new CommandOptions();
-            if (!CommandLine.Parser.Default.ParseArguments(args, options))
+            var cmdline = new Utility.CommandLineParser(args);
+
+            if ( cmdline.Count == 0 )
             {
-                Environment.Exit(-1);
+                PrintHelp();
                 return;
             }
 
+            var pluginMgr = new PluginManager();
+            pluginMgr.Init("plugin");
+
+
             var tool = new Tool();
-            tool.SearchPath = options.SearchPath;
+            tool.SearchPath = cmdline.GetContent("-s");
 
 
-            Parser parser;
-            Printer printer;
+            pluginMgr.Iterate((plugin) => { 
+                plugin.OnLoad( tool); 
+            });
 
-            if ( options.Method == "pf2pf" )
-            {
-                parser = new ProtoFParser(tool);
-                printer = new ProtoFPrinter();
-            }
-            else if (options.Method == "pb2pf")
-            {
-                parser = new ProtobufParser(tool);
-                printer = new ProtoFPrinter();
-            }
-            else if (options.Method == "pf2pb")
-            {
-                parser = new ProtoFParser(tool);
-                printer = new ProtobufPrinter();
-            }
-            else if (options.Method == "pb2pb")
-            {
-                parser = new ProtobufParser(tool);
-                printer = new ProtobufPrinter();
-            }
-            else
-            {
-                throw new Exception("Unknown method");
-            }
 
+
+           
 #if !DEBUG
             try
             {
 #endif
-                Tool.Convertor(options.InputFile, options.OutputFile, parser, printer);
-                return;
 
+                if (cmdline.Exists("-conv"))
+                {
+                    var convMethod = cmdline.GetContent("-conv");
+
+                    tool.Convertor.Do(convMethod, cmdline.GetContent("-i"), cmdline.GetContent("-o"));
+                }
+
+
+
+                pluginMgr.Iterate((plugin) =>
+                {
+                    plugin.OnExit();
+                });
+                
 #if !DEBUG
             }
             catch (ProtoExceptioin e)
@@ -92,6 +78,8 @@ namespace ProtoTool
 
             Environment.Exit(-1);     
 #endif
+
+            
 
         }
     }

@@ -95,7 +95,7 @@ namespace ProtoTool.Schema
             {
                 if (node.Number > 0 && (!node.NumberIsAutoGen || opt.ShowAllFieldNumber))
                 {
-                    sb.AppendFormat("= {0} ", node.Number);
+                    sb.AppendFormat(" = {0} ", node.Number);
                 }
             }
 

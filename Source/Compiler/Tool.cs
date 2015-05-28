@@ -1,16 +1,36 @@
-﻿using ProtoTool.Scanner;
+﻿using ProtoTool.Convertor;
+using ProtoTool.Scanner;
 using ProtoTool.Schema;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace ProtoTool
 {
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ConvertorAttribute : Attribute
+    {
+        public string Name { get; set; }
+    }
+
     public class Tool
     {
         public string SearchPath { get; set; }
 
         Dictionary<string, FileNode> _fileMap = new Dictionary<string, FileNode>();
+
+        ProtoConvertor _conv;
+
+        public Tool( )
+        {
+            _conv = new ProtoConvertor(this);
+        }
+
+        public ProtoConvertor Convertor
+        {
+            get { return _conv; }
+        }
 
         public FileNode GetFileNode( string name )
         {
@@ -63,22 +83,5 @@ namespace ProtoTool
 
             return Path.Combine(SearchPath, filename);
         }
-
-        public static void Convertor(string inputFileName, string outputFileName, Parser parser, Printer printer)
-        {            
-            var file = parser.StartParseFile(inputFileName);
-
-            var sb = new StringBuilder();
-
-            var opt = new PrintOption();
-            opt.Format = PrintFormat.ProtoF;
-            //subopt.ShowAllFieldNumber = true;
-            //subopt.ShowAllEnumNumber = true;
-
-            file.PrintVisit(printer, sb, opt);
-
-            File.WriteAllText(outputFileName, sb.ToString(), new UTF8Encoding(false));
-        }
-
     }
 }

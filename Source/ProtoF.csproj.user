@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>-m pb2pf -i t.proto -o c:\Develop\ProtoF.git\proto\t.pf -s c:\Develop\ProtoF.git\proto</StartArguments>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ProjectView>ShowAllFiles</ProjectView>
-  </PropertyGroup>
-</Project>

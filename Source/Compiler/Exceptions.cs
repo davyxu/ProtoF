@@ -7,7 +7,7 @@ namespace ProtoTool
     {
         Lexer,
         Parse,
-
+        Tool,
     }
 
 

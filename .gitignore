@@ -6,3 +6,9 @@
 /proto/actor.proto
 /proto/databundle.proto
 /pf
+/Plugin/ProtoF/bin
+/Plugin/ProtoF/obj
+/Plugin/Protobuf/bin
+/Plugin/Protobuf/obj
+/Source/*.user
+/bin
