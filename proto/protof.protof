@@ -20,8 +20,7 @@ enum FieldType
 
 // 字段
 message FieldDefine
-{
-	// Id int64 [Default: 1 AutoNumber:2 ] //`meta:"something" `
+{// Id int64 [Default: 1 AutoNumber:2 ] //`meta:"something" `
 
 	string    Name            = 1 [default:2] // x
 	FieldType Type            

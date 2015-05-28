@@ -32,8 +32,7 @@ namespace ProtoTool.Protobuf
 
             TryConsume(TokenType.EOL);
             ParseCommentAndEOL(node);
-            Consume(TokenType.LBrace);
-            ParseCommentAndEOL(node); 
+            Consume(TokenType.LBrace);            
             TryConsume(TokenType.EOL);
 
 

@@ -38,25 +38,19 @@ namespace ProtoTool
 
 
             pluginMgr.Iterate((plugin) => { 
-                plugin.OnLoad( tool); 
+                plugin.OnLoad(tool); 
             });
 
-
-
-           
 #if !DEBUG
             try
             {
 #endif
-
                 if (cmdline.Exists("-conv"))
                 {
                     var convMethod = cmdline.GetContent("-conv");
 
                     tool.Convertor.Do(convMethod, cmdline.GetContent("-i"), cmdline.GetContent("-o"));
                 }
-
-
 
                 pluginMgr.Iterate((plugin) =>
                 {
