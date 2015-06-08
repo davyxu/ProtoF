@@ -66,7 +66,7 @@ namespace ProtoTool.Convertor
         }
 
 
-        public void Do(string method, string inputFileName, string outputFileName)
+        public void Do(string method, string inputFileName, string outputFileName, bool autogenHeader )
         {
             var sidestr = method.Split('2');
             if (sidestr.Length != 2)
@@ -94,6 +94,7 @@ namespace ProtoTool.Convertor
 
             var opt = new PrintOption();
             opt.Format = PrintFormat.ProtoF;
+            opt.AutoGenHeader = autogenHeader;
             //subopt.ShowAllFieldNumber = true;
             //subopt.ShowAllEnumNumber = true;
 

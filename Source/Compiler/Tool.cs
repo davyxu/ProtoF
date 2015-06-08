@@ -16,7 +16,7 @@ namespace ProtoTool
 
     public class Tool
     {
-        public string SearchPath { get; set; }
+        public string SearchPath { get; set; }        
 
         Dictionary<string, FileNode> _fileMap = new Dictionary<string, FileNode>();
 

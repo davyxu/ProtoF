@@ -3,6 +3,7 @@ using ProtoTool.Schema;
 using ProtoTool.Scanner;
 using ProtoTool.Plugin;
 using System.Text;
+using System.IO;
 
 namespace ProtoTool
 {
@@ -16,7 +17,9 @@ namespace ProtoTool
             sb.AppendLine("-s   proto file search path");
             sb.AppendLine("-i   input file name");
             sb.AppendLine("-o   output file name");
-            sb.AppendLine("-conv   convert proto to proto format, like pb2pf, pb2pb, etc...");
+            sb.AppendLine("--pluginpath  set plugin search path");
+            sb.AppendLine("--autogenheader  add auto gen header at front");
+            sb.AppendLine("--conv   convert proto to proto format, like pb2pf, pb2pb, etc...");
         }
 
         static void Main(string[] args)
@@ -29,12 +32,21 @@ namespace ProtoTool
                 return;
             }
 
+            var pluginPath = cmdline.GetContent("--pluginpath");
+
             var pluginMgr = new PluginManager();
-            pluginMgr.Init("plugin");
+
+            if ( cmdline.Exists("--pluginpath"))
+            {
+                pluginPath = cmdline.GetContent("--pluginpath");
+            }
+
+
+            pluginMgr.Init(pluginPath);
 
 
             var tool = new Tool();
-            tool.SearchPath = cmdline.GetContent("-s");
+            tool.SearchPath = cmdline.GetContent("-s");            
 
 
             pluginMgr.Iterate((plugin) => { 
@@ -45,17 +57,20 @@ namespace ProtoTool
             try
             {
 #endif
-                if (cmdline.Exists("-conv"))
+                if (cmdline.Exists("--conv"))
                 {
-                    var convMethod = cmdline.GetContent("-conv");
+                    var convMethod = cmdline.GetContent("--conv");
 
-                    tool.Convertor.Do(convMethod, cmdline.GetContent("-i"), cmdline.GetContent("-o"));
+                    tool.Convertor.Do(convMethod, cmdline.GetContent("-i"), cmdline.GetContent("-o"), cmdline.Exists("--autogenheader") );
                 }
 
                 pluginMgr.Iterate((plugin) =>
                 {
                     plugin.OnExit();
                 });
+
+
+                return;
                 
 #if !DEBUG
             }

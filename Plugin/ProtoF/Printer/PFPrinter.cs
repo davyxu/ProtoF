@@ -1,4 +1,5 @@
 ﻿using ProtoTool.Schema;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -7,6 +8,24 @@ namespace ProtoTool.ProtoF
     [ConvertorAttribute(Name = "pf")]
     partial class ProtoFPrinter : Printer
     {
+        public override void Print(ImportNode node, StringBuilder sb, PrintOption opt, params object[] values)
+        {
+            string fileName;
+
+            if (node.Name.EndsWith(".pf"))
+            {
+                fileName = node.Name;
+            }
+            else
+            {
+                fileName = Path.GetFileNameWithoutExtension(node.Name) + ".pf";
+            }
+
+
+            sb.AppendFormat("import \"{0}\";\n", fileName);
+        }
+
+
         public override void Print(MessageNode node, StringBuilder sb, PrintOption opt, params object[] values)
         {
             sb.AppendFormat("message {0}\n", node.Name);

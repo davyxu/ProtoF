@@ -1,11 +1,7 @@
-﻿using ProtoTool.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProtoTool.Plugin
 {
@@ -16,14 +12,12 @@ namespace ProtoTool.Plugin
         Dictionary<string, IPlugin> _pluginMap = new Dictionary<string, IPlugin>();
 
         public void Init(string pluginDir)
-        {
-            var path = Path.Combine(Environment.CurrentDirectory, pluginDir);
-
-            foreach (string filename in Directory.GetFiles(path, "*.dll"))
+        {                       
+            foreach (string filename in Directory.GetFiles(pluginDir, "*.dll"))
             {
-                
 
-                var asm = Assembly.LoadFile(filename);
+                var finalfilename = Path.GetFullPath(filename);
+                var asm = Assembly.LoadFile(finalfilename);
                 if (asm == null)
                     continue;
 

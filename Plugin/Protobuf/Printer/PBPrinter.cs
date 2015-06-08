@@ -1,4 +1,5 @@
 ﻿using ProtoTool.Schema;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -15,7 +16,19 @@ namespace ProtoTool.Protobuf
 
         public override void Print(ImportNode node, StringBuilder sb, PrintOption opt, params object[] values)
         {
-            sb.AppendFormat("import \"{0}\";\n", node.Name);
+            string fileName;
+            
+            if ( node.Name.EndsWith(".proto") )
+            {
+                fileName = node.Name;
+            }
+            else
+            {
+                fileName = Path.GetFileNameWithoutExtension(node.Name) + ".proto";
+            }
+
+
+            sb.AppendFormat("import \"{0}\";\n", fileName);
         }
 
         public override void Print(MessageNode node, StringBuilder sb, PrintOption opt, params object[] values)
@@ -53,11 +66,7 @@ namespace ProtoTool.Protobuf
 
             sb.Append(node.Name.PadRight(maxNameLength));
 
-            if ((!node.NumberIsAutoGen || opt.ShowAllEnumNumber))
-            {
-
-                sb.AppendFormat(" = {0}", node.Number);
-            }
+            sb.AppendFormat(" = {0}", node.Number);            
 
             sb.Append(";");
 
@@ -84,13 +93,13 @@ namespace ProtoTool.Protobuf
             }
 
             // 类型
-            {                
-                sb.Append(node.TypeName.PadRight(node.TypeName.Length + 1));
+            {
+                sb.Append(node.TypeName.PadRight(maxTypeLength + 1));
             }
 
             // 字段名
             {
-                sb.Append(node.TypeName.PadRight(node.Name.Length + 1));                
+                sb.Append(node.Name.PadRight(maxNameLength + 1));                
             }
 
 
@@ -107,7 +116,16 @@ namespace ProtoTool.Protobuf
 
                 if (node.DefaultValue != "")
                 {
-                    sb.AppendFormat("default={0}", node.DefaultValue);
+                    switch( node.Type )
+                    {
+                        case FieldType.String:
+                            sb.AppendFormat("default=\"{0}\"", node.DefaultValue);
+                            break;
+                        default:
+                            sb.AppendFormat("default={0}", node.DefaultValue);
+                            break;
+                    }
+                    
                 }
 
                 sb.Append("]");                    
