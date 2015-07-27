@@ -22,7 +22,7 @@ namespace ProtoTool.ProtoF
             }
 
 
-            sb.AppendFormat("import \"{0}\";\n", fileName);
+            sb.AppendFormat("import \"{0}\"\n", fileName);
         }
 
 
